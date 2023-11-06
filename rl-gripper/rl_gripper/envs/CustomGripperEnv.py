@@ -25,11 +25,11 @@ class GripperEnv(gym.Env):
         #     low=np.array([-6.283, -2.059, -3.927, 0.0000], dtype=np.float32),
         #     high=np.array([6.283, 2.094, 0.191, 0.850], dtype=np.float32))
 
-        # OBS SPACE (Greyscale Depth Image Input, Later also Gripper Width)
-        # self.observation_space = Box(low=0, high=255, shape=(128, 128, 1), dtype=np.uint8)
-        self.observation_space = Box(
-            low=np.array([-100, -100, -100, -100, -100, -100], dtype=np.float32),
-            high=np.array([100, 100, 100, 100, 100, 100], dtype=np.float32))
+        # OBSERVATION SPACE (Greyscale Depth Image Input, Later also Gripper Width)
+        self.observation_space = Box(low=0, high=255, shape=(64, 64, 1), dtype=np.uint8)
+        # self.observation_space = Box(
+        #     low=np.array([-100, -100, -100, -100, -100, -100], dtype=np.float32),
+        #     high=np.array([100, 100, 100, 100, 100, 100], dtype=np.float32))
 
         # MULTIPLE FEATURES AS OBSERVATION... RL ALGORITHM HAS TO SUPPORT DICTS/TUPELS
         # spaces = {
@@ -39,14 +39,14 @@ class GripperEnv(gym.Env):
         # dict_space = gym.spaces.Dict(spaces)
 
         # self.state = [0, 0, 0, 0]   # [Yaw, Joint2, Joint3, Gripper]
-        self.sim_length = 600   # Max simulation length 10s??
+        self.sim_length = 512   # Max simulation length 10s??
         self.prev_dist_to_goal = None
         self.np_random, _ = gym.utils.seeding.np_random()
         self.terminated = False
         self.truncated = False
         self.COLLISION_FLAG = False
 
-        self.client = p.connect(p.DIRECT)
+        self.client = p.connect(p.GUI)
         p.setGravity(0, 0, -9.81)
         #p.setTimeStep(1/120, self.client)
 
@@ -54,7 +54,7 @@ class GripperEnv(gym.Env):
         self.plane = None
         self.cube = None
 
-        self.reset
+        self.reset()
 
     def step(self, action):
         ### ACTION ###
@@ -62,8 +62,8 @@ class GripperEnv(gym.Env):
         p.stepSimulation()
 
         ### OBSERVATION ###
-        depth, cgp, rgb_flat = self.robot.get_observation()
-        obs = np.array(cgp + self.cube.get_pos(), dtype=np.float32)
+        depth, tcp, rgb_flat = self.robot.get_observation()
+        obs = depth
 
         ### REWARD ###
         reward = 0
@@ -74,17 +74,23 @@ class GripperEnv(gym.Env):
 
         # distance to goal (L2 Norm)
         goal_xyz = self.cube.get_pos()
-        dist_to_goal = math.sqrt(((cgp[0] - goal_xyz[0]) ** 2 +
-                                  (cgp[1] - goal_xyz[1]) ** 2 +
-                                  (cgp[2] - goal_xyz[2]) ** 2))
+        dist_to_goal = math.sqrt(((tcp[0] - goal_xyz[0]) ** 2 +
+                                  (tcp[1] - goal_xyz[1]) ** 2 +
+                                  (tcp[2] - goal_xyz[2]) ** 2))
         if dist_to_goal < self.prev_dist_to_goal:
-            reward += 8
+            reward += 4
         else:
-            reward -= 8
+            reward -= 4
         self.prev_dist_to_goal = dist_to_goal
 
-        # cgp below z axis
-        if cgp[2] < 0.3:
+        # tcp below z axis
+        if tcp[2] < 0.3:
+            reward += 2
+
+        # camera facing downwards
+        cam_z = p.getLinkState(self.robot.id, 14)[0][2]
+        cam_target_z = p.getLinkState(self.robot.id, 15)[0][2]
+        if cam_z - cam_target_z > 0.15:
             reward += 2
 
         # goal or termination
@@ -118,13 +124,13 @@ class GripperEnv(gym.Env):
         #self.robot.print_joint_info()
 
         # Observation to start
-        depth, cgp, rgb_flat = self.robot.get_observation()
-        obs = np.array(cgp + self.cube.get_pos(), dtype=np.float32)
+        depth, tcp, rgb_flat = self.robot.get_observation()
+        obs = depth
 
         goal_xyz = self.cube.get_pos()  # Position of Goal
-        self.prev_dist_to_goal = math.sqrt(((cgp[0] - goal_xyz[0]) ** 2 +
-                                            (cgp[1] - goal_xyz[1]) ** 2 +
-                                            (cgp[2] - goal_xyz[2]) ** 2))
+        self.prev_dist_to_goal = math.sqrt(((tcp[0] - goal_xyz[0]) ** 2 +
+                                            (tcp[1] - goal_xyz[1]) ** 2 +
+                                            (tcp[2] - goal_xyz[2]) ** 2))
 
         return obs, dict()
 

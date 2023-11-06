@@ -9,9 +9,9 @@ gripperIndices = [8, 9, 10, 11, 12, 13]
 maxJointVel = .5
 
 ### CAMERA SETTINGS ###
-width, height = 128, 128
+width, height = 64, 64
 aspect = width / height
-near, far = 0.004, 0.35
+near, far = 0.01, 0.4
 fov = 140
 
 
@@ -43,12 +43,9 @@ class Robot:
         self.state = np.clip(self.state, ll, up)
 
         # p.setJointMotorControl2(self.id, 0, controlMode=p.POSITION_CONTROL, targetPosition=0)
-        p.setJointMotorControl2(self.id, 1, controlMode=p.POSITION_CONTROL, maxVelocity=maxJointVel,
-                                targetPosition=self.state[0])
-        p.setJointMotorControl2(self.id, 2, controlMode=p.POSITION_CONTROL, maxVelocity=maxJointVel,
-                                targetPosition=self.state[1])
-        p.setJointMotorControl2(self.id, 3, controlMode=p.POSITION_CONTROL, maxVelocity=maxJointVel,
-                                targetPosition=self.state[2])
+        p.setJointMotorControl2(self.id, 1, controlMode=p.POSITION_CONTROL, maxVelocity=maxJointVel, targetPosition=self.state[0])
+        p.setJointMotorControl2(self.id, 2, controlMode=p.POSITION_CONTROL, maxVelocity=maxJointVel, targetPosition=self.state[1])
+        p.setJointMotorControl2(self.id, 3, controlMode=p.POSITION_CONTROL, maxVelocity=maxJointVel, targetPosition=self.state[2])
         p.setJointMotorControl2(self.id, 4, controlMode=p.POSITION_CONTROL, maxVelocity=maxJointVel, targetPosition=0)
         p.setJointMotorControl2(self.id, 5, controlMode=p.POSITION_CONTROL, maxVelocity=maxJointVel, targetPosition=0)
         p.setJointMotorControl2(self.id, 6, controlMode=p.POSITION_CONTROL, maxVelocity=maxJointVel, targetPosition=0)
@@ -67,7 +64,7 @@ class Robot:
         camera_target = p.getLinkState(self.id, 15)[0]
         # camera_orn = p.getEulerFromQuaternion(p.getLinkState(self.id, 14)[1])
 
-        p.addUserDebugLine(camera_pos, camera_target, [1, 0, 0], 5, 0.3)
+        p.addUserDebugLine(camera_pos, camera_target, [1, 0, 0], 5, 0.1)
 
         view_matrix = p.computeViewMatrix(camera_pos, camera_target, [0, 0, 1])
         projection_matrix = p.computeProjectionMatrixFOV(fov, aspect, near, far)
@@ -75,17 +72,18 @@ class Robot:
         _, _, rgb_flat, depth, segmentation = p.getCameraImage(width, height, view_matrix, projection_matrix,
                                                                shadow=True,
                                                                renderer=p.ER_BULLET_HARDWARE_OPENGL)
+        depth = (np.array(depth)*255).reshape(64, 64, 1).astype(np.uint8)
 
-        # Get observation of Central Gripper Point
+        # Get observation of Tool Center Point
         coords_l = p.getLinkState(self.id, 9)[0]
         coords_r = p.getLinkState(self.id, 12)[0]
-        cgp = ((coords_l[0] + coords_r[0]) / 2, (coords_l[1] + coords_r[1]) / 2, (coords_l[2] + coords_r[2]) / 2)
-        # print(cgp)
-        p.addUserDebugLine(cgp, [cgp[0], cgp[1], cgp[2] - 0.01], [1, 0, 0], 10, 0.3)
+        tcp = ((coords_l[0] + coords_r[0]) / 2, (coords_l[1] + coords_r[1]) / 2, (coords_l[2] + coords_r[2]) / 2)
+        # print(tcp)
+        p.addUserDebugLine(tcp, [tcp[0], tcp[1], tcp[2] - 0.01], [1, 0, 0], 10, 0.1)
 
         # Maybe get observation of Gripper Width
 
-        return depth, cgp, rgb_flat
+        return depth, tcp, rgb_flat
 
     def print_joint_info(self):
         joint_info = []
