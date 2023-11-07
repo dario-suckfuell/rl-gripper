@@ -7,7 +7,7 @@ from stable_baselines3.common.vec_env import VecFrameStack
 from stable_baselines3.common.evaluation import evaluate_policy
 
 log_path = os.path.join('rl_gripper', 'training', 'logs')
-save_path = os.path.join('rl_gripper', 'training', 'saved_models', 'PPO_Model_1_10000')
+save_path = os.path.join('rl_gripper', 'training', 'saved_models', 'PPO_Model_1_400000')
 #tensorboard --logdir=D:\projects\rl-gripper\rl_gripper\training\logs\PPO_2
 
 
@@ -20,28 +20,28 @@ env = VecMonitor(env)
 model = PPO.load(save_path, env=env)
 
 ### TRAINING ###
-# model = PPO('CnnPolicy', env, learning_rate=0.0003,
-#             n_steps=2048,
-#             batch_size=1024,
-#             ent_coef=0.1,      # exploration (0.1) vs convergence (0.01)
+# model = PPO('CnnPolicy', env, learning_rate=0.0004,
+#             n_steps=8192,
+#             batch_size=2048,
+#             ent_coef=0.05,      # exploration (0.1) vs convergence (0.01)
 #             verbose=1,
 #             tensorboard_log=log_path)
 
-for episode in range(1, 2):     # total episodes from 1 to ...
-    model.learn(total_timesteps=2000)
-    checkpoint_path = f"{save_path}{episode*10000}"
-    model.save(checkpoint_path)
-
-# del model
+# for episode in range(6):     # total episodes
+#     model.learn(total_timesteps=100000)
+#     checkpoint_path = f"{save_path}{(episode+1)*100000}"
+#     model.save(checkpoint_path)
 
 ### EVALUATION ###
 # model = PPO.load(save_path, env=env)
-print("Evaluation:")
-print(evaluate_policy(model, env, n_eval_episodes=10, render=False))
+# print("Evaluation:")
+# print(evaluate_policy(model, env, n_eval_episodes=10, render=False))
+
+# del model
 
 ### TESTING ###
-print("Testing:")
-episodes = 5
+print("\nTesting:")
+episodes = 10
 for episode in range(1, episodes+1):
     obs = env.reset()
     terminated = False
@@ -54,6 +54,7 @@ for episode in range(1, episodes+1):
         obs, reward, terminated, truncated = env.step(action[0].flatten())
         # obs, reward, terminated, truncated, info = env.step(action)
         score += reward
-    print('Episode: {} --- Score: {}'.format(episode, score))
+        #print("\nStepreward: {}".format(reward))
+    print('\nEpisode: {} --- Score: {}'.format(episode, score))
 env.close()
 

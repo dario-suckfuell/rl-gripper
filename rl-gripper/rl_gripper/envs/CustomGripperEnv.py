@@ -39,7 +39,7 @@ class GripperEnv(gym.Env):
         # dict_space = gym.spaces.Dict(spaces)
 
         # self.state = [0, 0, 0, 0]   # [Yaw, Joint2, Joint3, Gripper]
-        self.sim_length = 512   # Max simulation length 10s??
+        self.sim_length = 512
         self.prev_dist_to_goal = None
         self.np_random, _ = gym.utils.seeding.np_random()
         self.terminated = False
@@ -77,29 +77,44 @@ class GripperEnv(gym.Env):
         dist_to_goal = math.sqrt(((tcp[0] - goal_xyz[0]) ** 2 +
                                   (tcp[1] - goal_xyz[1]) ** 2 +
                                   (tcp[2] - goal_xyz[2]) ** 2))
-        if dist_to_goal < self.prev_dist_to_goal:
-            reward += 4
-        else:
-            reward -= 4
-        self.prev_dist_to_goal = dist_to_goal
+        # if dist_to_goal < self.prev_dist_to_goal:
+        #     reward += 2
+        # else:
+        #     reward -= 2
+        # self.prev_dist_to_goal = dist_to_goal
 
-        # tcp below z axis
-        if tcp[2] < 0.3:
-            reward += 2
+        # rewarding green pixels
+        green_values = np.array(rgb_flat[1::4])
+        blue_values = np.array(rgb_flat[2::4])
+        true_green = green_values - blue_values     # otherwise white will also trigger the reward since it is [255, 255, 255]
+        true_green_count = sum(1 for pixel in true_green if pixel > 150)
+        reward += math.ceil(true_green_count/10)
+
+        # if true_green_count >= 4:
+        #     reward += 1
+        #     print("GREEEN")
+
+        # # tcp below z axis
+        # if tcp[2] < 0.3:
+        #     reward += 1
+        #     # print("TCP below 30cm")
 
         # camera facing downwards
-        cam_z = p.getLinkState(self.robot.id, 14)[0][2]
-        cam_target_z = p.getLinkState(self.robot.id, 15)[0][2]
-        if cam_z - cam_target_z > 0.15:
-            reward += 2
+        # cam_z = p.getLinkState(self.robot.id, 14)[0][2]
+        # cam_target_z = p.getLinkState(self.robot.id, 15)[0][2]
+        # if cam_z - cam_target_z > 0.17:
+        #     reward += 2
+        # else:
+        #     reward -= 2
+        #     # print("Camera facing downwards")
 
         # goal or termination
-        if dist_to_goal < 0.1:     # Goal achieved (5cm in range)
+        if dist_to_goal < 0.8:     # Goal achieved (8cm in range)
             self.terminated = True
-            reward = 1000
-        elif self.sim_length == 0:  # Time over
-            self.terminated = True
-            reward = -1000
+            reward += 1000
+        # elif self.sim_length == 0:  # Time over
+        #     self.terminated = True
+        #     reward -= 100
 
         self.sim_length -= 1
 

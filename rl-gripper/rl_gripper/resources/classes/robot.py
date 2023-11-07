@@ -11,7 +11,7 @@ maxJointVel = .5
 ### CAMERA SETTINGS ###
 width, height = 64, 64
 aspect = width / height
-near, far = 0.01, 0.4
+near, far = 0.05, 0.6
 fov = 140
 
 
@@ -72,7 +72,7 @@ class Robot:
         _, _, rgb_flat, depth, segmentation = p.getCameraImage(width, height, view_matrix, projection_matrix,
                                                                shadow=True,
                                                                renderer=p.ER_BULLET_HARDWARE_OPENGL)
-        depth = (np.array(depth)*255).reshape(64, 64, 1).astype(np.uint8)
+        depth = (np.array(depth)*255).reshape(width, height, 1).astype(np.uint8)
 
         # Get observation of Tool Center Point
         coords_l = p.getLinkState(self.id, 9)[0]

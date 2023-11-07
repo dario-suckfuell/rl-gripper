@@ -550,7 +550,7 @@
   <joint name="camera_joint" type="fixed">
     <parent link="link6"/>
     <child link="camera_link"/>
-    <origin rpy="0 -0.35 0" xyz="0.08 0 0.05"/>
+    <origin rpy="0 -0.23 0" xyz="0.08 0 0.05"/>
     <axis xyz="0 0 1"/>
   </joint>
   <link name="camera_target_link">
