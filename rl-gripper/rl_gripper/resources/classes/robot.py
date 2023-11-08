@@ -12,7 +12,7 @@ maxJointVel = .5
 width, height = 64, 64
 aspect = width / height
 near, far = 0.01, 0.6
-fov = 150
+fov = 130
 
 
 class Robot:
@@ -23,7 +23,7 @@ class Robot:
         f_path = "rl_gripper/resources/models/xarm6_with_gripper_with_camera_effort_bottom.urdf"
 
         self.client = client
-        self.state = np.array([0, 0.3, -1.3, 0.2], dtype=np.float32)
+        self.state = np.array([0, 0.3, -0.9, 0.2], dtype=np.float32)    # Start Position
         # self.state = np.array([1, 0, 0, 0], dtype=np.float32)
         self.id = p.loadURDF(f_path, gripperStartPos, gripperStartOri, flags=p.URDF_MAINTAIN_LINK_ORDER)
         p.resetJointStatesMultiDof(self.id, [1, 2, 3], [[self.state[0]], [self.state[1]], [self.state[2]]])

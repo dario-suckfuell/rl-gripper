@@ -9,7 +9,6 @@ from rl_gripper.resources.classes.cube import Cube
 from rl_gripper.resources.classes.plane import Plane
 from rl_gripper.resources.classes.robot import Robot
 
-
 class GripperEnv(gym.Env):
     metadata = {'render.modes': ['human', 'rgb_array']}
 
@@ -39,14 +38,14 @@ class GripperEnv(gym.Env):
         # dict_space = gym.spaces.Dict(spaces)
 
         # self.state = [0, 0, 0, 0]   # [Yaw, Joint2, Joint3, Gripper]
-        self.sim_length = 256
+        self.sim_length = 512
         self.prev_dist_to_goal = None
         self.np_random, _ = gym.utils.seeding.np_random()
         self.terminated = False
         self.truncated = False
         self.COLLISION_FLAG = False
 
-        self.client = p.connect(p.GUI)
+        self.client = p.connect(p.DIRECT)
         p.setGravity(0, 0, -9.81)
         #p.setTimeStep(1/240, self.client)
 
@@ -88,9 +87,9 @@ class GripperEnv(gym.Env):
         blue_values = np.array(rgb_flat[2::4], dtype=np.int16)
         true_green = green_values - blue_values     # otherwise white will also trigger the reward since it is [255, 255, 255]
         true_green_count = len([pixel for pixel in true_green if pixel > 150])
-        print("GreenPixelCount: {}".format(true_green_count))
-        reward += math.ceil(true_green_count/10)
-        print("GreenReward: {}".format(math.ceil(true_green_count/10)))
+        #print("GreenPixelCount: {}".format(true_green_count))
+        reward += math.ceil(true_green_count/100)
+        #print("GreenReward: {}".format(math.ceil(true_green_count/10)))
 
         # if true_green_count >= 4:
         #     reward += 1
@@ -111,9 +110,9 @@ class GripperEnv(gym.Env):
         #     # print("Camera facing downwards")
 
         # goal or termination
-        if dist_to_goal < 0.05:     # Goal achieved (8cm in range)
+        if dist_to_goal < 0.04:     # Goal achieved (8cm in range)
             self.terminated = True
-            reward += 2000
+            reward += 3000
         # elif self.sim_length == 0:  # Time over
         #     self.terminated = True
         #     reward -= 100
@@ -131,7 +130,7 @@ class GripperEnv(gym.Env):
         p.resetSimulation(self.client)
         p.setGravity(0, 0, -9.81)
 
-        self.sim_length = 256
+        self.sim_length = 512
         self.terminated = False
         self.truncated = False
         self.COLLISION_FLAG = False
