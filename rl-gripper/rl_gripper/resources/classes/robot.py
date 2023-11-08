@@ -11,8 +11,8 @@ maxJointVel = .5
 ### CAMERA SETTINGS ###
 width, height = 64, 64
 aspect = width / height
-near, far = 0.05, 0.6
-fov = 140
+near, far = 0.01, 0.6
+fov = 150
 
 
 class Robot:
@@ -20,7 +20,7 @@ class Robot:
     def __init__(self, client):
         gripperStartPos = [0, 0, 0.06]
         gripperStartOri = p.getQuaternionFromEuler([0, 0, 0])
-        f_path = "rl_gripper/resources/models/xarm6_with_gripper_with_camera_effort.urdf"
+        f_path = "rl_gripper/resources/models/xarm6_with_gripper_with_camera_effort_bottom.urdf"
 
         self.client = client
         self.state = np.array([0, 0.3, -1.3, 0.2], dtype=np.float32)
@@ -72,6 +72,7 @@ class Robot:
         _, _, rgb_flat, depth, segmentation = p.getCameraImage(width, height, view_matrix, projection_matrix,
                                                                shadow=True,
                                                                renderer=p.ER_BULLET_HARDWARE_OPENGL)
+        rgb_flat = np.array(rgb_flat.reshape(16384, 1)).ravel()
         depth = (np.array(depth)*255).reshape(width, height, 1).astype(np.uint8)
 
         # Get observation of Tool Center Point
