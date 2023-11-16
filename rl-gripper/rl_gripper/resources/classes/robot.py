@@ -6,7 +6,7 @@ import os
 
 ### GRIPPER SETTINGS ###
 gripperIndices = [8, 9, 10, 11, 12, 13]
-maxJointVel = .5
+maxJointVel = .6
 
 ### CAMERA SETTINGS ###
 width, height = 64, 64
@@ -38,7 +38,7 @@ class Robot:
         # Calculating relative action
         ll = np.array([-6.283, -2.059, -3.927, 0.0000])
         up = np.array([6.283, 2.094, 0.191, 0.850])
-        step_update = np.array([12.566 / 1000, 4.153 / 500, 4.118 / 500, 0.85 / 50]) * action
+        step_update = np.array([12.566 / 500, 4.153 / 250, 4.118 / 250, 0.85 / 25]) * action
         self.state += step_update
         self.state = np.clip(self.state, ll, up)
 

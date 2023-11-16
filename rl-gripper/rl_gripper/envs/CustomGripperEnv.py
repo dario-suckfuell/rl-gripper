@@ -45,7 +45,7 @@ class GripperEnv(gym.Env):
         self.truncated = False
         self.COLLISION_FLAG = False
 
-        self.client = p.connect(p.DIRECT)
+        self.client = p.connect(p.GUI)
         p.setGravity(0, 0, -9.81)
         #p.setTimeStep(1/240, self.client)
 

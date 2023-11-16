@@ -7,9 +7,9 @@ from stable_baselines3.common.vec_env import VecFrameStack
 from stable_baselines3.common.evaluation import evaluate_policy
 
 log_path = os.path.join('rl_gripper', 'training', 'logs')
-save_path = os.path.join('rl_gripper', 'training', 'saved_models', 'PPO_Model_1_')
-#tensorboard --logdir=D:\projects\rl-gripper\rl_gripper\training\logs\PPO_2
-
+save_path = os.path.join('rl_gripper', 'training', 'saved_models', 'PPO_Model_1_500000')
+#tensorboard --logdir=D:\projects\rl-gripper\rl_gripper\training\logs\PPO_1
+#tensorboard --logdir=/home/dsuckfuell/rl-gripper/rl-gripper/rl_gripper/training/logs
 
 ### LOAD ENVIRONMENT ###
 env = gym.make("Gripper-v0")
@@ -17,20 +17,20 @@ env = DummyVecEnv([lambda: env])
 env = VecFrameStack(env, n_stack=4)
 env = VecMonitor(env)
 
-# model = PPO.load(save_path, env=env)
+model = PPO.load(save_path, env=env)
 
 ### TRAINING ###
-model = PPO('CnnPolicy', env, learning_rate=0.00025,
-            n_steps=50000,
-            batch_size=64,
-            ent_coef=0.03,      # exploration (0.1) vs convergence (0.01)
-            verbose=1,
-            tensorboard_log=log_path)
-
-for episode in range(10):     # total episodes
-    model.learn(total_timesteps=100000)
-    checkpoint_path = f"{save_path}{(episode+1)*100000}"
-    model.save(checkpoint_path)
+# model = PPO('CnnPolicy', env, learning_rate=0.00025,
+#             n_steps=50000,
+#             batch_size=64,
+#             ent_coef=0.03,      # exploration (0.1) vs convergence (0.01)
+#             verbose=1,
+#             tensorboard_log=log_path)
+#
+# for episode in range(10):     # total episodes
+#     model.learn(total_timesteps=100000)
+#     checkpoint_path = f"{save_path}{(episode+1)*100000}"
+#     model.save(checkpoint_path)
 
 ### EVALUATION ###
 # model = PPO.load(save_path, env=env)
@@ -49,10 +49,10 @@ print(evaluate_policy(model, env, n_eval_episodes=3, render=False))
 #     score = 0
 #
 #     while not terminated:
-#         # action = model.predict(obs)
-#         action = env.action_space.sample()
+#         action = model.predict(obs)
+#         #action = env.action_space.sample()
 #         obs, reward, terminated, truncated = env.step(action[0].flatten())
-#         # obs, reward, terminated, truncated, info = env.step(action)
+#         #obs, reward, terminated, truncated, info = env.step(action)
 #         score += reward
 #         #print("\nStepreward: {}".format(reward))
 #     print('\nEpisode: {} --- Score: {}'.format(episode, score))
