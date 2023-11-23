@@ -6,7 +6,7 @@ import os
 
 ### GRIPPER SETTINGS ###
 gripperIndices = [8, 9, 10, 11, 12, 13]
-maxJointVel = .6
+maxJointVel = 4
 
 ### CAMERA SETTINGS ###
 width, height = 64, 64
@@ -36,10 +36,13 @@ class Robot:
 
     def apply_action(self, action):
         # Calculating relative action
-        ll = np.array([-6.283, -2.059, -3.927, 0.0000])
-        up = np.array([6.283, 2.094, 0.191, 0.850])
-        step_update = np.array([12.566 / 500, 4.153 / 250, 4.118 / 250, 0.85 / 25]) * action
+        # ll = np.array([-6.283, -2.059, -3.927, 0.0000])
+        # up = np.array([6.283, 2.094, 0.191, 0.850])
+        ll = np.array([-np.pi/4, -0.7, -1.3, 0.0000])
+        up = np.array([np.pi/4, 0.7, 0.191, 0.850])
+        step_update = np.array([12.566 / 1000, 4.153 / 500, 4.118 / 500, 0.85 / 50]) * action
         self.state += step_update
+        # print(self.state)
         self.state = np.clip(self.state, ll, up)
 
         # p.setJointMotorControl2(self.id, 0, controlMode=p.POSITION_CONTROL, targetPosition=0)

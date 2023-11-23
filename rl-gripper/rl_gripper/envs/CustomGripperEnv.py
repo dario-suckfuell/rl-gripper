@@ -1,6 +1,6 @@
-import gym
+import gymnasium as gym
 import pybullet as p
-from gym.spaces import Discrete, Box
+from gymnasium.spaces import Box
 import numpy as np
 import random
 import math
@@ -8,6 +8,7 @@ import math
 from rl_gripper.resources.classes.cube import Cube
 from rl_gripper.resources.classes.plane import Plane
 from rl_gripper.resources.classes.robot import Robot
+
 
 class GripperEnv(gym.Env):
     metadata = {'render.modes': ['human', 'rgb_array']}
@@ -38,22 +39,23 @@ class GripperEnv(gym.Env):
         # dict_space = gym.spaces.Dict(spaces)
 
         # self.state = [0, 0, 0, 0]   # [Yaw, Joint2, Joint3, Gripper]
-        self.sim_length = 512
+        self.sim_length = 256
         self.prev_dist_to_goal = None
         self.np_random, _ = gym.utils.seeding.np_random()
         self.terminated = False
         self.truncated = False
         self.COLLISION_FLAG = False
+        self.GRASPING_FLAG = False
 
-        self.client = p.connect(p.GUI)
+        self.client = p.connect(p.DIRECT)
         p.setGravity(0, 0, -9.81)
-        #p.setTimeStep(1/240, self.client)
+        # p.setTimeStep(1/240, self.client)
 
         self.robot = None
         self.plane = None
         self.cube = None
 
-        self.reset()
+        # self.reset()
 
     def step(self, action):
         ### ACTION ###
@@ -65,61 +67,12 @@ class GripperEnv(gym.Env):
         obs = depth
 
         ### REWARD ###
-        reward = 0
-        self.check_for_collisions()
-        if self.COLLISION_FLAG:
-            self.terminated = True
-            reward -= 2000
-
-        # distance to goal (L2 Norm)
-        goal_xyz = self.cube.get_pos()
-        dist_to_goal = math.sqrt(((tcp[0] - goal_xyz[0]) ** 2 +
-                                  (tcp[1] - goal_xyz[1]) ** 2 +
-                                  (tcp[2] - goal_xyz[2]) ** 2))
-        # if dist_to_goal < self.prev_dist_to_goal:
-        #     reward += 2
-        # else:
-        #     reward -= 2
-        # self.prev_dist_to_goal = dist_to_goal
-
-        # rewarding green pixels
-        green_values = np.array(rgb_flat[1::4], dtype=np.int16)
-        blue_values = np.array(rgb_flat[2::4], dtype=np.int16)
-        true_green = green_values - blue_values     # otherwise white will also trigger the reward since it is [255, 255, 255]
-        true_green_count = len([pixel for pixel in true_green if pixel > 150])
-        #print("GreenPixelCount: {}".format(true_green_count))
-        reward += math.ceil(true_green_count/100)
-        #print("GreenReward: {}".format(math.ceil(true_green_count/10)))
-
-        # if true_green_count >= 4:
-        #     reward += 1
-        #     print("GREEEN")
-
-        # # tcp below z axis
-        # if tcp[2] < 0.3:
-        #     reward += 1
-        #     # print("TCP below 30cm")
-
-        # camera facing downwards
-        # cam_z = p.getLinkState(self.robot.id, 14)[0][2]
-        # cam_target_z = p.getLinkState(self.robot.id, 15)[0][2]
-        # if cam_z - cam_target_z > 0.17:
-        #     reward += 2
-        # else:
-        #     reward -= 2
-        #     # print("Camera facing downwards")
-
-        # goal or termination
-        if dist_to_goal < 0.04:     # Goal achieved (8cm in range)
-            self.terminated = True
-            reward += 3000
-        # elif self.sim_length == 0:  # Time over
-        #     self.terminated = True
-        #     reward -= 100
+        reward = self.calculate_reward(depth, tcp, rgb_flat)
 
         self.sim_length -= 1
         if self.sim_length == 0:
             self.terminated = True
+
         return obs, reward, self.terminated, False, dict()
 
     def seed(self, seed=None):
@@ -138,7 +91,7 @@ class GripperEnv(gym.Env):
         self.plane = Plane(self.client)
         self.robot = Robot(self.client)
         self.cube = Cube(self.client)
-        #self.robot.print_joint_info()
+        # self.robot.print_joint_info()
 
         # Observation to start
         depth, tcp, rgb_flat = self.robot.get_observation()
@@ -164,3 +117,70 @@ class GripperEnv(gym.Env):
         if len(collision_robot_plane) != 0 or len(collision_robot_robot) != 0:
             self.COLLISION_FLAG = True
             # print("Collision")
+
+    def check_for_grasping(self):
+        right_finger_and_cube = p.getContactPoints(self.robot.id, self.cube.id, 12)
+        left_finger_and_cube = p.getContactPoints(self.robot.id, self.cube.id, 9)
+        if len(right_finger_and_cube) != 0 and len(left_finger_and_cube) != 0:
+            self.GRASPING_FLAG = True
+            # print("Grasping detected")
+        else:
+            self.GRASPING_FLAG = False
+
+    def calculate_reward(self, depth, tcp, rgb_flat):
+        ### SHAPED REWARD ###
+        reward = -200.0  # Time penalty
+
+        self.check_for_grasping()
+        self.check_for_collisions()
+
+        if self.COLLISION_FLAG:
+            reward -= 20000
+            self.terminated = True
+
+        # rewarding green pixels
+        green_values = np.array(rgb_flat[1::4], dtype=np.int16)
+        blue_values = np.array(rgb_flat[2::4], dtype=np.int16)
+        true_green = green_values - blue_values  # otherwise white will also trigger the reward since it is [255, 255, 255]
+        true_green_count = len([pixel for pixel in true_green if pixel > 150])
+        # print("GreenPixelCount: {}".format(true_green_count))
+        reward += np.clip(math.ceil(true_green_count / 50), 0, 49)  # 0 bis 30 mit 100 als Teiler
+        # print("GreenReward: {}".format(math.ceil(true_green_count / 10)))
+
+        if self.GRASPING_FLAG:
+            reward += 50
+
+            if self.cube.get_pos()[2] > 0.027:
+                reward += (self.cube.get_pos()[2] - 0.027) * 1000
+
+            if self.cube.get_pos()[2] > 0.1:
+                reward += 20000
+                self.terminated = True
+
+        ''' # # tcp below z axis
+        # if tcp[2] < 0.3:
+        #     reward += 1
+        #     # print("TCP below 30cm")
+
+        # camera facing downwards
+        # cam_z = p.getLinkState(self.robot.id, 14)[0][2]
+        # cam_target_z = p.getLinkState(self.robot.id, 15)[0][2]
+        # if cam_z - cam_target_z > 0.17:
+        #     reward += 2
+        # else:
+        #     reward -= 2
+        #     # print("Camera facing downwards")
+        
+        # distance to goal (L2 Norm) NICHT OPTIMAL DA CUBE POS NOTWENDIG
+        goal_xyz = self.cube.get_pos()
+        dist_to_goal = math.sqrt(((tcp[0] - goal_xyz[0]) ** 2 +
+                                  (tcp[1] - goal_xyz[1]) ** 2 +
+                                  (tcp[2] - goal_xyz[2]) ** 2))
+        if dist_to_goal < self.prev_dist_to_goal:
+            reward += 2
+        else:
+            reward -= 2
+        self.prev_dist_to_goal = dist_to_goal
+        '''
+
+        return reward

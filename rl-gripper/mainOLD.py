@@ -2,9 +2,8 @@ import pybullet as p
 import pybullet_data
 import time
 
-import resources.functions.jointFunctions as jointFunctions
-import resources.functions.helper as helper
-from resources.classes import cube, robot, plane
+import rl_gripper.resources.functions.jointFunctions as jointFunctions
+
 
 
 ### PHYSICS CLIENT ###yes
@@ -15,10 +14,10 @@ p.setRealTimeSimulation(0)
 
 
 ### LOAD MODEL ###
-#gripperStartPos = [0, 0, 0.06]
-#gripperStartOri = p.getQuaternionFromEuler([0, 0, 0])
-#planeID = p.loadURDF("plane.urdf")
-#gripperID = p.loadURDF("resources/models/xarm6_with_gripper_with_camera_effort.urdf", gripperStartPos, gripperStartOri)
+gripperStartPos = [0, 0, 0.06]
+gripperStartOri = p.getQuaternionFromEuler([0, 0, 0])
+planeID = p.loadURDF("plane.urdf")
+gripperID = p.loadURDF("rl_gripper/resources/models/xarm6_with_gripper_with_camera_effort_bottom.urdf", gripperStartPos, gripperStartOri)
 #debugCubeID = p.loadURDF("resources/models/cube.urdf", [0.21, 0, 0], p.getQuaternionFromEuler([0, 0, 0]))
 #helper.spawn_random_cubes(40)
 
