@@ -9,7 +9,7 @@ from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.env_checker import check_env
 
 log_path = os.path.join('rl_gripper', 'training', 'logs')
-save_path = os.path.join('rl_gripper', 'training', 'saved_models', 'PPO_Model_2_1000000')
+save_path = os.path.join('rl_gripper', 'training', 'saved_models', 'SAC_Model_1_1600000')
 #tensorboard --logdir=D:\projects\rl-gripper\rl_gripper\training\logs\PPO_1
 #tensorboard --logdir=/home/dsuckfuell/rl-gripper/rl-gripper/rl_gripper/training/logs
 
@@ -18,7 +18,7 @@ env = gym.make("Gripper-v0")
 env = DummyVecEnv([lambda: env])    # Für eval nur das verwenden
 env = VecFrameStack(env, n_stack=4)
 
-model = PPO.load(save_path, env=env)
+model = SAC.load(save_path, env=env)
 
 # print("Evaluation:")
 # print(evaluate_policy(model, env, n_eval_episodes=3, render=False))

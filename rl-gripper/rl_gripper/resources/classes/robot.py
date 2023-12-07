@@ -11,8 +11,8 @@ maxJointVel = 4
 ### CAMERA SETTINGS ###
 width, height = 64, 64
 aspect = width / height
-near, far = 0.01, 0.6
-fov = 130
+near, far = 0.01, 0.2
+fov = 140
 
 
 class Robot:

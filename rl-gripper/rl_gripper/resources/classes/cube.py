@@ -9,8 +9,8 @@ class Cube:
         self.client = client
         f_path = "rl_gripper/resources/models/cube.urdf"
         # DEBUG_CUBE self.id = p.loadURDF(f_path, [0.21, 0, 0.025], p.getQuaternionFromEuler([0, 0, 0]))
-        startPosCube = [random.uniform(0.43, 0.63), random.uniform(-.1, .1), 0.03]
-        # startPosCube = [0.53, 0, 0.05]
+        # startPosCube = [random.uniform(0.43, 0.63), random.uniform(-.1, .1), 0.03]
+        startPosCube = [0.53, 0, 0.05]
         self.id = p.loadURDF(f_path, startPosCube, p.getQuaternionFromEuler([0, 0, 0]))
 
     def get_ids(self):

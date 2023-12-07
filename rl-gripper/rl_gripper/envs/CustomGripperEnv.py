@@ -39,7 +39,7 @@ class GripperEnv(gym.Env):
         # dict_space = gym.spaces.Dict(spaces)
 
         # self.state = [0, 0, 0, 0]   # [Yaw, Joint2, Joint3, Gripper]
-        self.sim_length = 256
+        self.sim_length = 256  # ALSO IN RESET() !!!
         self.prev_dist_to_goal = None
         self.np_random, _ = gym.utils.seeding.np_random()
         self.terminated = False
@@ -47,7 +47,7 @@ class GripperEnv(gym.Env):
         self.COLLISION_FLAG = False
         self.GRASPING_FLAG = False
 
-        self.client = p.connect(p.DIRECT)
+        self.client = p.connect(p.GUI)
         p.setGravity(0, 0, -9.81)
         # p.setTimeStep(1/240, self.client)
 
@@ -83,10 +83,11 @@ class GripperEnv(gym.Env):
         p.resetSimulation(self.client)
         p.setGravity(0, 0, -9.81)
 
-        self.sim_length = 512
+        self.sim_length = 256
         self.terminated = False
         self.truncated = False
         self.COLLISION_FLAG = False
+        self.GRASPING_FLAG = False
 
         self.plane = Plane(self.client)
         self.robot = Robot(self.client)
@@ -97,10 +98,10 @@ class GripperEnv(gym.Env):
         depth, tcp, rgb_flat = self.robot.get_observation()
         obs = depth
 
-        goal_xyz = self.cube.get_pos()  # Position of Goal
-        self.prev_dist_to_goal = math.sqrt(((tcp[0] - goal_xyz[0]) ** 2 +
-                                            (tcp[1] - goal_xyz[1]) ** 2 +
-                                            (tcp[2] - goal_xyz[2]) ** 2))
+        # goal_xyz = self.cube.get_pos()  # Position of Goal
+        # self.prev_dist_to_goal = math.sqrt(((tcp[0] - goal_xyz[0]) ** 2 +
+        #                                     (tcp[1] - goal_xyz[1]) ** 2 +
+        #                                     (tcp[2] - goal_xyz[2]) ** 2))
 
         return obs, dict()
 
@@ -129,32 +130,35 @@ class GripperEnv(gym.Env):
 
     def calculate_reward(self, depth, tcp, rgb_flat):
         ### SHAPED REWARD ###
-        reward = -200.0  # Time penalty
+        reward = -2.0  # Time penalty
 
         self.check_for_grasping()
         self.check_for_collisions()
 
         if self.COLLISION_FLAG:
-            reward -= 20000
+            reward -= 200
             self.terminated = True
 
-        # rewarding green pixels
+        # REWARDING GREEN PIXELS
         green_values = np.array(rgb_flat[1::4], dtype=np.int16)
         blue_values = np.array(rgb_flat[2::4], dtype=np.int16)
         true_green = green_values - blue_values  # otherwise white will also trigger the reward since it is [255, 255, 255]
         true_green_count = len([pixel for pixel in true_green if pixel > 150])
         # print("GreenPixelCount: {}".format(true_green_count))
-        reward += np.clip(math.ceil(true_green_count / 50), 0, 49)  # 0 bis 30 mit 100 als Teiler
+        # reward += np.clip(math.ceil(true_green_count / 50), 0, 49)
+        reward += np.clip(true_green_count / 120, 0, 0.9)
         # print("GreenReward: {}".format(math.ceil(true_green_count / 10)))
 
         if self.GRASPING_FLAG:
-            reward += 50
+            reward += 0.5
 
+            # over starting high of 2.7cm
             if self.cube.get_pos()[2] > 0.027:
-                reward += (self.cube.get_pos()[2] - 0.027) * 1000
+                reward += (self.cube.get_pos()[2] - 0.027) * 11
 
+            # Goal, über 10cm
             if self.cube.get_pos()[2] > 0.1:
-                reward += 20000
+                reward += 400
                 self.terminated = True
 
         ''' # # tcp below z axis
