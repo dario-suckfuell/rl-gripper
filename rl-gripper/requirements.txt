@@ -173,7 +173,7 @@ tf2-kdl==0.7.6
 tf2-py==0.7.6
 tf2-ros==0.7.6
 topic-tools==1.15.15
-torch==2.1.0
+torch~=2.1.1
 triton==2.1.0
 typing_extensions==4.5.0
 tzdata==2023.3
@@ -183,3 +183,6 @@ Werkzeug==3.0.1
 wrapt==1.15.0
 xacro==1.14.14
 zipp==3.17.0
+
+setuptools~=68.2.0
+torchvision~=0.16.1

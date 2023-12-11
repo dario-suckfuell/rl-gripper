@@ -22,7 +22,7 @@ env = gym.make("Gripper-v0")
 yaw = p.addUserDebugParameter("1", -1, 1, 0)
 param2 = p.addUserDebugParameter("2", -1, 1, 0)
 param3 = p.addUserDebugParameter("3", -1, 1, 0)
-paramGripper = p.addUserDebugParameter("4", -1.0, 1, 0)
+paramGripper = p.addUserDebugParameter("4", -1, 1, 0)
 
 ### MANUAL CONTROL ###
 print("\nManual Control:")
@@ -47,7 +47,6 @@ while True:
 
         obs, reward, terminated, truncated, info = env.step(action)
         #print(reward)
-        #obs, reward, terminated, truncated, info = env.step(action)
         score += reward
         #print("\nStepreward: {}".format(reward))
     print('\nScore: {}'.format(score))

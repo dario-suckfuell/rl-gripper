@@ -9,6 +9,7 @@ from rl_gripper.resources.classes.cube import Cube
 from rl_gripper.resources.classes.plane import Plane
 from rl_gripper.resources.classes.robot import Robot
 
+sim_length = 128
 
 class GripperEnv(gym.Env):
     metadata = {'render.modes': ['human', 'rgb_array']}
@@ -39,7 +40,7 @@ class GripperEnv(gym.Env):
         # dict_space = gym.spaces.Dict(spaces)
 
         # self.state = [0, 0, 0, 0]   # [Yaw, Joint2, Joint3, Gripper]
-        self.sim_length = 256  # ALSO IN RESET() !!!
+        self.sim_length = sim_length  # ALSO IN RESET() !!!
         self.prev_dist_to_goal = None
         self.np_random, _ = gym.utils.seeding.np_random()
         self.terminated = False
@@ -47,7 +48,7 @@ class GripperEnv(gym.Env):
         self.COLLISION_FLAG = False
         self.GRASPING_FLAG = False
 
-        self.client = p.connect(p.GUI)
+        self.client = p.connect(p.DIRECT)
         p.setGravity(0, 0, -9.81)
         # p.setTimeStep(1/240, self.client)
 
@@ -71,8 +72,7 @@ class GripperEnv(gym.Env):
 
         self.sim_length -= 1
         if self.sim_length == 0:
-            pass
-            # self.terminated = True
+            self.terminated = True
 
         return obs, reward, self.terminated, False, dict()
 
@@ -84,7 +84,7 @@ class GripperEnv(gym.Env):
         p.resetSimulation(self.client)
         p.setGravity(0, 0, -9.81)
 
-        self.sim_length = 256
+        self.sim_length = sim_length
         self.terminated = False
         self.truncated = False
         self.COLLISION_FLAG = False

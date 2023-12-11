@@ -1,37 +1,39 @@
 import pybullet as p
 import rl_gripper.resources.functions.jointFunctions as jointFunctions
 import numpy as np
+import math
 import random
 import os
 
 ### GRIPPER SETTINGS ###
 gripperIndices = [8, 9, 10, 11, 12, 13]
-maxJointVel = 4
+maxJointVel = 8
+endEffectorIdx = 14
 
 ### CAMERA SETTINGS ###
 width, height = 64, 64
 aspect = width / height
 near, far = 0.01, 0.2
-fov = 140
+fov = 120
 
 
 class Robot:
 
     def __init__(self, client):
-        gripperStartPos = [0, 0, 0.06]
+        gripperStartPos = [0, 0, 0.01]
         gripperStartOri = p.getQuaternionFromEuler([0, 0, 0])
         f_path = "rl_gripper/resources/models/xarm6_with_gripper_with_camera_effort_bottom.urdf"
+        self.ll_joints = np.array([-6.283, -2.059, -3.927, -6.283, -1.692, -6.283])
+        self.ul_joints = np.array([6.283, 2.094, 0.191, 6.283, 3.141, 6.283])
 
         self.client = client
-        # self.state = np.array([0, 0.3, -0.9, 0.2], dtype=np.float32)    # Start Position
-        self.state = np.array([0, 0, 0, 0], dtype=np.float32)  # Start Position
-        self.gripperOri = gripperStartOri
-        # self.state = np.array([1, 0, 0, 0], dtype=np.float32)
         self.id = p.loadURDF(f_path, gripperStartPos, gripperStartOri, flags=p.URDF_MAINTAIN_LINK_ORDER)
-        p.resetJointStatesMultiDof(self.id, [1, 2, 3], [[self.state[0]], [self.state[1]], [self.state[2]]])
-        p.resetJointStatesMultiDof(self.id, gripperIndices, [[self.state[3]] for i in range(1, 7)])
-        p.resetJointStatesMultiDof(self.id, [0, 4, 5, 6, 7], [[0], [0], [0], [0], [0]])
-        # print(p.getJointState(self.id, 1))
+
+        self.FIX_GRIPPER_ORIENTATION = p.getLinkState(self.id, 14)[1]
+        joint_angles = p.calculateInverseKinematics(self.id, endEffectorIdx, [0.3, 0, 0.2], self.FIX_GRIPPER_ORIENTATION, lowerLimits=self.ll_joints, upperLimits=self.ul_joints)
+        p.resetJointStatesMultiDof(self.id, [1, 2, 3, 4, 5, 6], [[joint_angles[0]], [joint_angles[1]], [joint_angles[2]], [joint_angles[3]], [joint_angles[4]], [joint_angles[5]]])
+
+        self.state = np.array([*p.getLinkState(self.id, 14)[0], 0], dtype=np.float32)  # Start Position [X, Y, Z, Gw]
 
     def get_ids(self):
         return self.client, self.id
@@ -68,31 +70,30 @@ class Robot:
 
     def apply_action_xyz(self, action):
         # Calculating relative action
-        # ll = np.array([-6.283, -2.059, -3.927, 0.0000])
-        # up = np.array([6.283, 2.094, 0.191, 0.850])
-        ll = np.array([-1, -1, -1, 0.0000])
-        up = np.array([1, 1, 1, 0.850])
-        step_update = np.array([2 / 20, 2 / 20, 2 / 20, 0.85 / 40]) * action
-        self.state += step_update  # XYZGw
-        self.state = np.clip(self.state, ll, up)
-        xyz = action[0:3]/2
-        #print(xyz)
-        p.addUserDebugLine(xyz, [xyz[0], xyz[1], xyz[2]-0.1], [1, 0, 0], 20, 0.1)
-        joint_angles = p.calculateInverseKinematics(self.id, 8, xyz)
-        print(joint_angles)
 
-        for i, joint_angle in enumerate(joint_angles):
-            p.setJointMotorControl2(self.id, i,
+        ll_xyz = np.array([-0.5, -0.5, -0.5, 0.0000])
+        ul_xyz = np.array([0.5, 0.5, 0.5, 0.850])
+        step_update = np.array([1 / 100, 1 / 100, 1 / 100, 0.85 / 40]) * action    #Max 2 cm [bei predicted action von 1 bzw. -1]
+        self.state += step_update  # XYZGw
+        self.state = np.clip(self.state, ll_xyz, ul_xyz)
+        xyz = self.state[0:3]
+        gripperWidth = self.state[3]
+        # print(xyz)
+        # p.addUserDebugLine(xyz, [xyz[0], xyz[1], xyz[2] - 0.1], [1, 0, 0], 20, 0.1)
+        joint_angles = p.calculateInverseKinematics(self.id, endEffectorIdx, xyz, self.FIX_GRIPPER_ORIENTATION, lowerLimits=self.ll_joints, upperLimits=self.ul_joints)
+        # print(joint_angles)     # 12 Values bc 12 DoFs
+
+        for i in range(6):
+            #print(jointFunctions.get_joint_info(self.id, i+1))
+            p.setJointMotorControl2(self.id, i+1,
                                     controlMode=p.POSITION_CONTROL,
                                     maxVelocity=maxJointVel,
-                                    targetPosition=joint_angle
-                                    )
+                                    targetPosition=joint_angles[i])
 
         for joint_index in gripperIndices:
             p.setJointMotorControl2(self.id, joint_index,
                                     controlMode=p.POSITION_CONTROL,
-                                    targetPosition=self.state[3],
-
+                                    targetPosition=gripperWidth,
                                     maxVelocity=15,
                                     force=100)
 
@@ -133,3 +134,23 @@ class Robot:
             ll, up, jr = jointFunctions.get_joint_ranges(self.id, i)
             joint_info.append([id, name, type, pos, vel, ll, up, jr])
             print('ID: {}\nName: {}\nType: {}\nLower Limit: {}\nUpper Limit: {}\n'.format(id, name, type, ll, up))
+
+
+'''
+XX (0, b'world_joint', 4)
+(1, b'joint1', 0)
+(2, b'joint2', 0)
+(3, b'joint3', 0)
+(4, b'joint4', 0)
+(5, b'joint5', 0)
+(6, b'joint6', 0)
+XX (7, b'gripper_fix', 4)
+(8, b'drive_joint', 0)
+(9, b'left_finger_joint', 0)
+(10, b'left_inner_knuckle_joint', 0)
+(11, b'right_outer_knuckle_joint', 0)
+(12, b'right_finger_joint', 0)
+(13, b'right_inner_knuckle_joint', 0)
+XX (14, b'camera_joint', 4)
+XX (15, b'camera_target_joint', 4)
+'''

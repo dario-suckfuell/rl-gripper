@@ -1,10 +1,12 @@
 import torch
 import random
 import torch.nn as nn
+#from torchvision.models import resnet18, ResNet18_Weights  #Macht irgendeinen komischen fehler! bzw eine torch version
+
 from stable_baselines3.common.torch_layers import BaseFeaturesExtractor
 from stable_baselines3.common.callbacks import BaseCallback
 
-### VORTRAINIERTES RESNET VERWENDEN ###
+
 class CustomCNN(BaseFeaturesExtractor):
     # Custom Feature Extractor: Custom CNN
     def __int__(self, observation_space, features_dim):
@@ -29,10 +31,34 @@ class CustomCNN(BaseFeaturesExtractor):
         return self.fc(self.cnn(observation))
 
 
+### VORTRAINIERTES RESNET ###
+class CustomResNetFeatureExtractor(BaseFeaturesExtractor):
+    def __init__(self, observation_space, features_dim: int = 512):
+        super(CustomResNetFeatureExtractor, self).__init__(observation_space, features_dim)
+
+        # Preprocessing layer to convert 1-channel images to 3-channel
+        self.preprocess = nn.Conv2d(1, 3, kernel_size=1)
+
+        # Load a pre-trained ResNet model
+        self.resnet = resnet18(weights=ResNet18_Weights.IMAGENET1K_V1)
+
+        # Replace the last fully connected layer to match the desired feature size
+        num_features_in = self.resnet.fc.in_features
+        self.resnet.fc = nn.Linear(num_features_in, features_dim)
+
+    def forward(self, observations):
+        # Apply the preprocessing layer
+        observations = self.preprocess(observations)
+
+        # Pass through the ResNet model
+        return self.resnet(observations)
+
+
 class TensorboardCallback(BaseCallback):
     # Custom callback for plotting additional values in tensorboard.
     def __init__(self, verbose=0):
         super().__init__(verbose)
+
     def _on_step(self) -> bool:
         # Log additional stats
         value = random.randint(-1, 1)
