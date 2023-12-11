@@ -59,7 +59,7 @@ class GripperEnv(gym.Env):
 
     def step(self, action):
         ### ACTION ###
-        self.robot.apply_action(action)
+        self.robot.apply_action_xyz(action)
         p.stepSimulation()
 
         ### OBSERVATION ###
@@ -71,7 +71,8 @@ class GripperEnv(gym.Env):
 
         self.sim_length -= 1
         if self.sim_length == 0:
-            self.terminated = True
+            pass
+            # self.terminated = True
 
         return obs, reward, self.terminated, False, dict()
 
@@ -154,7 +155,7 @@ class GripperEnv(gym.Env):
 
             # over starting high of 2.7cm
             if self.cube.get_pos()[2] > 0.027:
-                reward += (self.cube.get_pos()[2] - 0.027) * 11
+                reward += (self.cube.get_pos()[2] - 0.027) * 10
 
             # Goal, über 10cm
             if self.cube.get_pos()[2] > 0.1:

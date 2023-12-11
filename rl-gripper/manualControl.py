@@ -46,7 +46,7 @@ while True:
         action = np.array([userYaw, userParam2, userParam3, userParamGripper])
 
         obs, reward, terminated, truncated, info = env.step(action)
-        print(reward)
+        #print(reward)
         #obs, reward, terminated, truncated, info = env.step(action)
         score += reward
         #print("\nStepreward: {}".format(reward))

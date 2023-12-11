@@ -23,7 +23,9 @@ class Robot:
         f_path = "rl_gripper/resources/models/xarm6_with_gripper_with_camera_effort_bottom.urdf"
 
         self.client = client
-        self.state = np.array([0, 0.3, -0.9, 0.2], dtype=np.float32)    # Start Position
+        # self.state = np.array([0, 0.3, -0.9, 0.2], dtype=np.float32)    # Start Position
+        self.state = np.array([0, 0, 0, 0], dtype=np.float32)  # Start Position
+        self.gripperOri = gripperStartOri
         # self.state = np.array([1, 0, 0, 0], dtype=np.float32)
         self.id = p.loadURDF(f_path, gripperStartPos, gripperStartOri, flags=p.URDF_MAINTAIN_LINK_ORDER)
         p.resetJointStatesMultiDof(self.id, [1, 2, 3], [[self.state[0]], [self.state[1]], [self.state[2]]])
@@ -38,17 +40,20 @@ class Robot:
         # Calculating relative action
         # ll = np.array([-6.283, -2.059, -3.927, 0.0000])
         # up = np.array([6.283, 2.094, 0.191, 0.850])
-        ll = np.array([-np.pi/4, -0.7, -1.3, 0.0000])
-        up = np.array([np.pi/4, 0.7, 0.191, 0.850])
+        ll = np.array([-np.pi / 4, -0.7, -1.3, 0.0000])
+        up = np.array([np.pi / 4, 0.7, 0.191, 0.850])
         step_update = np.array([12.566 / 1000, 4.153 / 500, 4.118 / 500, 0.85 / 50]) * action
         self.state += step_update
         # print(self.state)
         self.state = np.clip(self.state, ll, up)
 
         # p.setJointMotorControl2(self.id, 0, controlMode=p.POSITION_CONTROL, targetPosition=0)
-        p.setJointMotorControl2(self.id, 1, controlMode=p.POSITION_CONTROL, maxVelocity=maxJointVel, targetPosition=self.state[0])
-        p.setJointMotorControl2(self.id, 2, controlMode=p.POSITION_CONTROL, maxVelocity=maxJointVel, targetPosition=self.state[1])
-        p.setJointMotorControl2(self.id, 3, controlMode=p.POSITION_CONTROL, maxVelocity=maxJointVel, targetPosition=self.state[2])
+        p.setJointMotorControl2(self.id, 1, controlMode=p.POSITION_CONTROL, maxVelocity=maxJointVel,
+                                targetPosition=self.state[0])
+        p.setJointMotorControl2(self.id, 2, controlMode=p.POSITION_CONTROL, maxVelocity=maxJointVel,
+                                targetPosition=self.state[1])
+        p.setJointMotorControl2(self.id, 3, controlMode=p.POSITION_CONTROL, maxVelocity=maxJointVel,
+                                targetPosition=self.state[2])
         p.setJointMotorControl2(self.id, 4, controlMode=p.POSITION_CONTROL, maxVelocity=maxJointVel, targetPosition=0)
         p.setJointMotorControl2(self.id, 5, controlMode=p.POSITION_CONTROL, maxVelocity=maxJointVel, targetPosition=0)
         p.setJointMotorControl2(self.id, 6, controlMode=p.POSITION_CONTROL, maxVelocity=maxJointVel, targetPosition=0)
@@ -58,6 +63,36 @@ class Robot:
             p.setJointMotorControl2(self.id, joint_index,
                                     controlMode=p.POSITION_CONTROL,
                                     targetPosition=self.state[3],
+                                    maxVelocity=15,
+                                    force=100)
+
+    def apply_action_xyz(self, action):
+        # Calculating relative action
+        # ll = np.array([-6.283, -2.059, -3.927, 0.0000])
+        # up = np.array([6.283, 2.094, 0.191, 0.850])
+        ll = np.array([-1, -1, -1, 0.0000])
+        up = np.array([1, 1, 1, 0.850])
+        step_update = np.array([2 / 20, 2 / 20, 2 / 20, 0.85 / 40]) * action
+        self.state += step_update  # XYZGw
+        self.state = np.clip(self.state, ll, up)
+        xyz = action[0:3]/2
+        #print(xyz)
+        p.addUserDebugLine(xyz, [xyz[0], xyz[1], xyz[2]-0.1], [1, 0, 0], 20, 0.1)
+        joint_angles = p.calculateInverseKinematics(self.id, 8, xyz)
+        print(joint_angles)
+
+        for i, joint_angle in enumerate(joint_angles):
+            p.setJointMotorControl2(self.id, i,
+                                    controlMode=p.POSITION_CONTROL,
+                                    maxVelocity=maxJointVel,
+                                    targetPosition=joint_angle
+                                    )
+
+        for joint_index in gripperIndices:
+            p.setJointMotorControl2(self.id, joint_index,
+                                    controlMode=p.POSITION_CONTROL,
+                                    targetPosition=self.state[3],
+
                                     maxVelocity=15,
                                     force=100)
 
@@ -75,8 +110,9 @@ class Robot:
         _, _, rgb_flat, depth, segmentation = p.getCameraImage(width, height, view_matrix, projection_matrix,
                                                                shadow=True,
                                                                renderer=p.ER_BULLET_HARDWARE_OPENGL)
-        rgb_flat = np.array(rgb_flat.reshape(16384, 1)).ravel()
-        depth = (np.array(depth)*255).reshape(width, height, 1).astype(np.uint8)
+        rgb_flat = np.array(rgb_flat).reshape(16384, 1).ravel()
+        # rgb_flat = np.array(rgb_flat.reshape(16384, 1)).ravel()
+        depth = (np.array(depth) * 255).reshape(width, height, 1).astype(np.uint8)
 
         # Get observation of Tool Center Point
         coords_l = p.getLinkState(self.id, 9)[0]
