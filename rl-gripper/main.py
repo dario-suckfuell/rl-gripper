@@ -1,68 +1,55 @@
 import gymnasium as gym
 import os
 from rl_gripper.envs.CustomGripperEnv import GripperEnv
-from rl_gripper.resources.classes.customClasses import CustomResNetFeatureExtractor, TensorboardCallback
+from rl_gripper.resources.classes.customClasses import TensorboardCallback, CustomCNN, CustomResNetFeatureExtractor
 from stable_baselines3 import SAC, PPO
 from stable_baselines3.common.vec_env import DummyVecEnv, VecMonitor, VecEnv, VecNormalize, SubprocVecEnv
-from stable_baselines3.common.vec_env import VecFrameStack
+from stable_baselines3.common.vec_env import VecFrameStack, VecTransposeImage
 from stable_baselines3.common.env_util import make_vec_env
-from stable_baselines3.common.evaluation import evaluate_policy
-from stable_baselines3.common.env_checker import check_env
-from stable_baselines3.common.torch_layers import NatureCNN
-import numpy as np
-import time
+from stable_baselines3.common.callbacks import EvalCallback
+import torch
 
+torch.cuda.empty_cache()
+
+# 2M timesteps in 39h
 
 log_path = os.path.join('rl_gripper', 'training', 'logs')
-save_path = os.path.join('rl_gripper', 'training', 'saved_models', 'SAC_Model_test_')
+save_path = os.path.join('rl_gripper', 'training', 'saved_models', 'SAC_Model_2M')
 #tensorboard --logdir=D:\projects\rl-gripper\rl_gripper\training\logs\PPO_1
 #tensorboard --logdir=/home/dsuckfuell/rl-gripper/rl-gripper/rl_gripper/training/logs
 
-### LOAD ENVIRONMENT ###
-# env = gym.make("Gripper-v0")
-# env = DummyVecEnv([lambda: env])    # Für eval nur das verwenden
-env = make_vec_env("Gripper-v0", n_envs=10)
+### LOAD TRAINING ENVIRONMENT ###
+env_kwargs = {'render_mode': 'GUI'}
+train_env = make_vec_env("Gripper-v0", n_envs=1, env_kwargs=env_kwargs)
+train_env = VecTransposeImage(train_env)
+train_env = VecFrameStack(train_env, n_stack=4)
 
-# env = VecNormalize(env, norm_obs=False, norm_reward=True)   #Obs wird von CnnPolicy normalisiert // norm_reward not possible for SAC
-env = VecFrameStack(env, n_stack=4)
-# env = VecMonitor(env)
+### LOAD EVAL ENVIRONMENT ###
+env_kwargs = {'render_mode': 'DIRECT'}
+eval_env = make_vec_env("Gripper-v0", n_envs=1)
+eval_env = VecTransposeImage(eval_env)
+eval_env = VecFrameStack(eval_env, n_stack=4)
+eval_callback = EvalCallback(eval_env, best_model_save_path=os.path.join('rl_gripper', 'training', 'saved_models'),
+                             eval_freq=5000,
+                             deterministic=True, render=False)
 
 ### TRAINING ###
-# model = SAC.load(save_path, env=env)
-
 policy_kwargs = dict(
-    features_extractor_class=CustomResNetFeatureExtractor,
+    features_extractor_class=CustomCNN,
     features_extractor_kwargs=dict(features_dim=512),
 )
 
-model = SAC("CnnPolicy", env,
-            # policy_kwargs={"features_extractor_class": CustomCNN,
-            #                "features_extractor_kwargs": {"features_dim": 64}},
+model = SAC("CnnPolicy", train_env,
             verbose=1,
-            buffer_size=512,
-            batch_size=128,
-            ent_coef=0.01,
+            buffer_size=200000,
+            batch_size=500,
+            ent_coef='auto',
             learning_rate=0.0003,
             device='cuda',
-            # policy_kwargs=policy_kwargs,
+            policy_kwargs=policy_kwargs,
             tensorboard_log=log_path)
-# model.learn(total_timesteps=10000, callback=TensorboardCallback())
-model.learn(total_timesteps=10000)
-
-
-# model = PPO.load(save_path, env=env)
-# model = PPO('CnnPolicy', env, learning_rate=0.0003,
-#             n_steps=50000,
-#             batch_size=128,
-#             ent_coef=0.02,      # exploration (0.1) vs convergence (0.01)
-#             verbose=1,
-#             tensorboard_log=log_path)
-
-# for episode in range(10):     # total episodes
-#     model.learn(total_timesteps=100000)
-#     checkpoint_path = f"{save_path}{(episode+1)*100000}"
-#     model.save(checkpoint_path)
-
+model.learn(total_timesteps=2000000, callback=[eval_callback], progress_bar=True)
+model.save(save_path)
 
 
 

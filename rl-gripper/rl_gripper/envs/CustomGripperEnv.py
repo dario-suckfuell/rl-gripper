@@ -9,22 +9,17 @@ from rl_gripper.resources.classes.cube import Cube
 from rl_gripper.resources.classes.plane import Plane
 from rl_gripper.resources.classes.robot import Robot
 
-sim_length = 128
+sim_length = 256
 
 class GripperEnv(gym.Env):
-    metadata = {'render.modes': ['human', 'rgb_array']}
+    #metadata = {'render_modes': ['GUI', 'DIRECT']}
 
-    def __init__(self):
+    def __init__(self, render_mode='GUI'):
         # ACTION SPACE
 
         self.action_space = Box(
-            low=np.array([-1, -1, -1, -1], dtype=np.float32),
-            high=np.array([1, 1, 1, 1], dtype=np.float32))
-
-        # ABSOLUTE POSITION CONTROL
-        # self.action_space = Box(
-        #     low=np.array([-6.283, -2.059, -3.927, 0.0000], dtype=np.float32),
-        #     high=np.array([6.283, 2.094, 0.191, 0.850], dtype=np.float32))
+            low=np.array([-1, -1, -1, -1], dtype=np.float16),
+            high=np.array([1, 1, 1, 1], dtype=np.float16))
 
         # OBSERVATION SPACE (Greyscale Depth Image Input, Later also Gripper Width)
         self.observation_space = Box(low=0, high=255, shape=(64, 64, 1), dtype=np.uint8)
@@ -48,7 +43,11 @@ class GripperEnv(gym.Env):
         self.COLLISION_FLAG = False
         self.GRASPING_FLAG = False
 
-        self.client = p.connect(p.DIRECT)
+        if render_mode == 'GUI':
+            self.client = p.connect(p.GUI)
+        else:
+            self.client = p.connect(p.DIRECT)
+
         p.setGravity(0, 0, -9.81)
         # p.setTimeStep(1/240, self.client)
 
@@ -59,6 +58,7 @@ class GripperEnv(gym.Env):
         # self.reset()
 
     def step(self, action):
+        #print("IN STEP FUNCTION:", action)
         ### ACTION ###
         self.robot.apply_action_xyz(action)
         p.stepSimulation()
@@ -71,6 +71,9 @@ class GripperEnv(gym.Env):
         reward = self.calculate_reward(depth, tcp, rgb_flat)
 
         self.sim_length -= 1
+        # print(self.sim_length)
+        # if self.sim_length == 27:
+        #     test = 1
         if self.sim_length == 0:
             self.terminated = True
 
