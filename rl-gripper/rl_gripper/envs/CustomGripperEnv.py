@@ -9,7 +9,7 @@ from rl_gripper.resources.classes.cube import Cube
 from rl_gripper.resources.classes.plane import Plane
 from rl_gripper.resources.classes.robot import Robot
 
-sim_length = 256
+sim_length = 64
 
 class GripperEnv(gym.Env):
     #metadata = {'render_modes': ['GUI', 'DIRECT']}
@@ -36,7 +36,7 @@ class GripperEnv(gym.Env):
 
         # self.state = [0, 0, 0, 0]   # [Yaw, Joint2, Joint3, Gripper]
         self.sim_length = sim_length  # ALSO IN RESET() !!!
-        self.prev_dist_to_goal = None
+        self.prev_dist_to_goal = 0.3
         self.np_random, _ = gym.utils.seeding.np_random()
         self.terminated = False
         self.truncated = False
@@ -68,7 +68,7 @@ class GripperEnv(gym.Env):
         obs = depth
 
         ### REWARD ###
-        reward = self.calculate_reward(depth, tcp, rgb_flat)
+        reward = self.calculate_reward_simple(depth, tcp, rgb_flat)
 
         self.sim_length -= 1
         # print(self.sim_length)
@@ -150,7 +150,7 @@ class GripperEnv(gym.Env):
         true_green_count = len([pixel for pixel in true_green if pixel > 150])
         # print("GreenPixelCount: {}".format(true_green_count))
         # reward += np.clip(math.ceil(true_green_count / 50), 0, 49)
-        reward += np.clip(true_green_count / 120, 0, 0.9)
+        reward += np.clip(true_green_count / 125, 0, 0.9)
         # print("GreenReward: {}".format(math.ceil(true_green_count / 10)))
 
         if self.GRASPING_FLAG:
@@ -192,3 +192,34 @@ class GripperEnv(gym.Env):
         '''
 
         return reward
+
+
+    def calculate_reward_simple(self, depth, tcp, rgb_flat):
+        ### SHAPED REWARD ###
+        reward = -2.0  # Time penalty
+
+        self.check_for_grasping()
+        self.check_for_collisions()
+
+        if self.COLLISION_FLAG:
+            reward -= 100
+            self.terminated = True
+
+        # distance to goal (L2 Norm) NICHT OPTIMAL DA CUBE POS NOTWENDIG
+        goal_xyz = self.cube.get_pos()
+        dist_to_goal = math.sqrt(((tcp[0] - goal_xyz[0]) ** 2 +
+                                  (tcp[1] - goal_xyz[1]) ** 2 +
+                                  (tcp[2] - goal_xyz[2]) ** 2))
+        if dist_to_goal < self.prev_dist_to_goal:
+            reward += 1
+        else:
+            reward -= 1
+
+        self.prev_dist_to_goal = dist_to_goal
+
+        if dist_to_goal < 0.06:
+            reward += 100
+            self.terminated = True
+
+        return reward
+

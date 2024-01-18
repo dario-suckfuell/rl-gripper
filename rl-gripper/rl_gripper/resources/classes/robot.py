@@ -80,8 +80,9 @@ class Robot:
         gripperWidth = self.state[3]
         # print(xyz)
         # p.addUserDebugLine(xyz, [xyz[0], xyz[1], xyz[2] - 0.1], [1, 0, 0], 20, 0.1)
-        joint_angles = p.calculateInverseKinematics(self.id, endEffectorIdx, xyz, self.FIX_GRIPPER_ORIENTATION, lowerLimits=self.ll_joints, upperLimits=self.ul_joints)
-        # print(joint_angles)     # 12 Values bc 12 DoFs
+        #joint_angles = p.calculateInverseKinematics(self.id, endEffectorIdx, xyz, self.FIX_GRIPPER_ORIENTATION, lowerLimits=self.ll_joints, upperLimits=self.ul_joints)
+        joint_angles = p.calculateInverseKinematics(self.id, endEffectorIdx, xyz, [1,0,0,0], lowerLimits=self.ll_joints, upperLimits=self.ul_joints)
+
 
         for i in range(6):
             #print(jointFunctions.get_joint_info(self.id, i+1))
@@ -100,12 +101,21 @@ class Robot:
     def get_observation(self):
         # Get camera output
         camera_pos = p.getLinkState(self.id, 14)[0]
-        camera_target = p.getLinkState(self.id, 15)[0]
+        # camera_target = p.getLinkState(self.id, 15)[0]
         # camera_orn = p.getEulerFromQuaternion(p.getLinkState(self.id, 14)[1])
+        matrix = np.array(p.getMatrixFromQuaternion(p.getLinkState(self.id, 14)[1])).reshape(3,3)
+        #lookat = np.linalg.inv(matrix) @ np.array([0,0,1])# + camera_pos
+        #upvec = np.linalg.inv(matrix) @ np.array([1,0,0]) #+ camera_pos
 
-        p.addUserDebugLine(camera_pos, camera_target, [1, 0, 0], 5, 0.1)
+        lookat_pos = matrix @ np.array([0, 0, 1]) + camera_pos
+        upvec = matrix @ np.array([1, 0, 0])
 
-        view_matrix = p.computeViewMatrix(camera_pos, camera_target, [0, 0, 1])
+        p.addUserDebugLine(camera_pos, lookat_pos, upvec, 5, 0.1)
+        #p.addUserDebugLine(camera_pos, lookat_pos, [0, 0, 1], 5, 100)
+        #p.addUserDebugLine(camera_pos, camera_pos + upvec, [0, 1, 0], 5, 100)
+
+        #view_matrix = p.computeViewMatrix(camera_pos, camera_target, [1, 0, 0])
+        view_matrix = p.computeViewMatrix(camera_pos, lookat_pos, upvec)
         projection_matrix = p.computeProjectionMatrixFOV(fov, aspect, near, far)
 
         _, _, rgb_flat, depth, segmentation = p.getCameraImage(width, height, view_matrix, projection_matrix,

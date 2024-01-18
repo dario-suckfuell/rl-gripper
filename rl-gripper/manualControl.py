@@ -42,7 +42,7 @@ while True:
         action = np.array([x, y, z, Gw])
 
         obs, reward, terminated, truncated, info = env.step(action)
-        #print(reward)
+        print(reward)
         score += reward
         #print("\nStepreward: {}".format(reward))
     print('\nScore: {}'.format(score))

@@ -14,13 +14,13 @@ torch.cuda.empty_cache()
 # 2M timesteps in 39h
 
 log_path = os.path.join('rl_gripper', 'training', 'logs')
-save_path = os.path.join('rl_gripper', 'training', 'saved_models', 'SAC_Model_2M')
+save_path = os.path.join('rl_gripper', 'training', 'saved_models', 'SAC_Model_SimpleReward_1M')
 #tensorboard --logdir=D:\projects\rl-gripper\rl_gripper\training\logs\PPO_1
 #tensorboard --logdir=/home/dsuckfuell/rl-gripper/rl-gripper/rl_gripper/training/logs
 
 ### LOAD TRAINING ENVIRONMENT ###
-env_kwargs = {'render_mode': 'GUI'}
-train_env = make_vec_env("Gripper-v0", n_envs=1, env_kwargs=env_kwargs)
+env_kwargs = {'render_mode': 'DIRECT'}
+train_env = make_vec_env("Gripper-v0", n_envs=20, env_kwargs=env_kwargs)
 train_env = VecTransposeImage(train_env)
 train_env = VecFrameStack(train_env, n_stack=4)
 
@@ -30,7 +30,7 @@ eval_env = make_vec_env("Gripper-v0", n_envs=1)
 eval_env = VecTransposeImage(eval_env)
 eval_env = VecFrameStack(eval_env, n_stack=4)
 eval_callback = EvalCallback(eval_env, best_model_save_path=os.path.join('rl_gripper', 'training', 'saved_models'),
-                             eval_freq=5000,
+                             eval_freq=5000,    #eval_freq = eval_freq * n_envs
                              deterministic=True, render=False)
 
 ### TRAINING ###
@@ -41,15 +41,13 @@ policy_kwargs = dict(
 
 model = SAC("CnnPolicy", train_env,
             verbose=1,
-            buffer_size=200000,
-            batch_size=500,
+            buffer_size=100000,
+            batch_size=5000,
             ent_coef='auto',
             learning_rate=0.0003,
             device='cuda',
-            policy_kwargs=policy_kwargs,
+            #policy_kwargs=policy_kwargs,
             tensorboard_log=log_path)
-model.learn(total_timesteps=2000000, callback=[eval_callback], progress_bar=True)
+model.learn(total_timesteps=1000000, callback=[eval_callback], progress_bar=True)
 model.save(save_path)
-
-
 
