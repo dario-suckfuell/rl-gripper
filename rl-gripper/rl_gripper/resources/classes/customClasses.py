@@ -40,7 +40,7 @@ class CustomResNetFeatureExtractor(BaseFeaturesExtractor):
     def __init__(self, observation_space: spaces.Box, features_dim: int = 512):
         super(CustomResNetFeatureExtractor, self).__init__(observation_space, features_dim)
 
-        # Preprocessing layer to convert 1-channel images to 3-channel
+        # Preprocessing layer to convert n-channel images to 3-channel
         n_input_channels = observation_space.shape[0]
         self.preprocess = nn.Conv2d(n_input_channels, 3, kernel_size=1)
 
@@ -55,6 +55,10 @@ class CustomResNetFeatureExtractor(BaseFeaturesExtractor):
         num_features_in = self.resnet.fc.in_features
         self.resnet.fc = nn.Linear(num_features_in, features_dim)
 
+        # for name, param in self.resnet.named_parameters():
+        #     if param.requires_grad:
+        #         print(name)
+
     def forward(self, observations):
 
         # Apply the preprocessing layer
@@ -67,7 +71,7 @@ class CustomResNetFeatureExtractor(BaseFeaturesExtractor):
 class TensorboardCallback(BaseCallback):
     # Custom callback for plotting additional values in tensorboard.
     def __init__(self, verbose=0):
-        super().__init__(verbose)
+        super().__init__(verbose=0)
 
     def _on_step(self) -> bool:
         # Log additional stats

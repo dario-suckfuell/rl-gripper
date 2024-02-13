@@ -36,6 +36,9 @@
   <material name="Silver">
     <color rgba="0.753 0.753 0.753 1.0"/>
   </material>
+    <material name="transparent">
+    <color rgba="0.753 0.753 0.753 0.2"/>
+  </material>  
   <link name="link_base">
     <visual>
       <geometry>
@@ -386,7 +389,7 @@
       <geometry>
         <mesh filename="package://xarm_gripper/meshes/left_finger.STL"/>
       </geometry>
-      <material name="Silver">
+      <material name="transparent">
         <color rgba="0.753 0.753 0.753 1.0"/>
       </material>
     </visual>
@@ -483,7 +486,7 @@
       <geometry>
         <mesh filename="package://xarm_gripper/meshes/right_finger.STL"/>
       </geometry>
-      <material name="Silver">
+      <material name="transparent">
         <color rgba="0.753 0.753 0.753 1.0"/>
       </material>
     </visual>
@@ -536,7 +539,7 @@
   <link name="camera_link">
     <visual>
       <geometry>
-		<box size="0.02 0.02 0.02"/>
+		<box size="0.013 0.013 0.05"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0.00064 -0.00952"/>
       <material name="Red"/>
@@ -550,7 +553,7 @@
   <joint name="camera_joint" type="fixed">
     <parent link="link6"/>
     <child link="camera_link"/>
-    <origin rpy="0 0 0" xyz="0 0 0.13"/>
+    <origin rpy="0 0 0" xyz="0 0 0.11"/>
     <axis xyz="0 0 1"/>
   </joint>
   <link name="camera_target_link">

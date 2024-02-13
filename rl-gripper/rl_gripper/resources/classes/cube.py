@@ -5,12 +5,17 @@ import random
 
 
 class Cube:
-    def __init__(self, client):
+    def __init__(self, client, cube_position='RANDOM'):
         self.client = client
         f_path = "rl_gripper/resources/models/cube.urdf"
         # DEBUG_CUBE self.id = p.loadURDF(f_path, [0.21, 0, 0.025], p.getQuaternionFromEuler([0, 0, 0]))
-        # startPosCube = [random.uniform(0.43, 0.63), random.uniform(-.1, .1), 0.03]
-        startPosCube = [0.315, 0, 0.03]
+
+        if cube_position == 'FIX':
+            startPosCube = [0.33, 0, 0.02]
+        elif cube_position == 'RANDOM':
+            startPosCube = [random.uniform(0.2, 0.5), random.uniform(-.15, .15), 0.02]
+            # startPosCube = [random.uniform(0.4, 0.5), random.uniform(-.05, .05), 0.02]   #Kleiner Radius
+
         self.id = p.loadURDF(f_path, startPosCube, p.getQuaternionFromEuler([0, 0, 0]))
 
     def get_ids(self):

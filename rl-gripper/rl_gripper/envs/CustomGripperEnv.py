@@ -11,10 +11,13 @@ from rl_gripper.resources.classes.robot import Robot
 
 sim_length = 64
 
-class GripperEnv(gym.Env):
-    #metadata = {'render_modes': ['GUI', 'DIRECT']}
 
-    def __init__(self, render_mode='GUI'):
+class GripperEnv(gym.Env):
+    # metadata = {'render_modes': ['GUI', 'DIRECT']
+    #            'cube_position' ['FIX', 'RANDOM']}
+
+    def __init__(self, cube_position='FIX', render_mode='GUI'):
+        self.cube_position = cube_position
         # ACTION SPACE
 
         self.action_space = Box(
@@ -36,7 +39,7 @@ class GripperEnv(gym.Env):
 
         # self.state = [0, 0, 0, 0]   # [Yaw, Joint2, Joint3, Gripper]
         self.sim_length = sim_length  # ALSO IN RESET() !!!
-        self.prev_dist_to_goal = 0.3
+        self.prev_dist_to_goal = 100
         self.np_random, _ = gym.utils.seeding.np_random()
         self.terminated = False
         self.truncated = False
@@ -58,7 +61,7 @@ class GripperEnv(gym.Env):
         # self.reset()
 
     def step(self, action):
-        #print("IN STEP FUNCTION:", action)
+        # print("IN STEP FUNCTION:", action)
         ### ACTION ###
         self.robot.apply_action_xyz(action)
         p.stepSimulation()
@@ -95,7 +98,7 @@ class GripperEnv(gym.Env):
 
         self.plane = Plane(self.client)
         self.robot = Robot(self.client)
-        self.cube = Cube(self.client)
+        self.cube = Cube(self.client, self.cube_position)
         # self.robot.print_joint_info()
 
         # Observation to start
@@ -165,44 +168,17 @@ class GripperEnv(gym.Env):
                 reward += 400
                 self.terminated = True
 
-        ''' # # tcp below z axis
-        # if tcp[2] < 0.3:
-        #     reward += 1
-        #     # print("TCP below 30cm")
-
-        # camera facing downwards
-        # cam_z = p.getLinkState(self.robot.id, 14)[0][2]
-        # cam_target_z = p.getLinkState(self.robot.id, 15)[0][2]
-        # if cam_z - cam_target_z > 0.17:
-        #     reward += 2
-        # else:
-        #     reward -= 2
-        #     # print("Camera facing downwards")
-        
-        # distance to goal (L2 Norm) NICHT OPTIMAL DA CUBE POS NOTWENDIG
-        goal_xyz = self.cube.get_pos()
-        dist_to_goal = math.sqrt(((tcp[0] - goal_xyz[0]) ** 2 +
-                                  (tcp[1] - goal_xyz[1]) ** 2 +
-                                  (tcp[2] - goal_xyz[2]) ** 2))
-        if dist_to_goal < self.prev_dist_to_goal:
-            reward += 2
-        else:
-            reward -= 2
-        self.prev_dist_to_goal = dist_to_goal
-        '''
-
         return reward
-
 
     def calculate_reward_simple(self, depth, tcp, rgb_flat):
         ### SHAPED REWARD ###
-        reward = -2.0  # Time penalty
+        reward = -1.0  # Time penalty
 
         self.check_for_grasping()
         self.check_for_collisions()
 
         if self.COLLISION_FLAG:
-            reward -= 100
+            reward -= 150
             self.terminated = True
 
         # distance to goal (L2 Norm) NICHT OPTIMAL DA CUBE POS NOTWENDIG
@@ -210,16 +186,25 @@ class GripperEnv(gym.Env):
         dist_to_goal = math.sqrt(((tcp[0] - goal_xyz[0]) ** 2 +
                                   (tcp[1] - goal_xyz[1]) ** 2 +
                                   (tcp[2] - goal_xyz[2]) ** 2))
-        if dist_to_goal < self.prev_dist_to_goal:
-            reward += 1
-        else:
-            reward -= 1
 
-        self.prev_dist_to_goal = dist_to_goal
+        # reward -= math.log2(1.2 * dist_to_goal + 1)
+        reward -= 4 * dist_to_goal
 
-        if dist_to_goal < 0.06:
-            reward += 100
-            self.terminated = True
+        # if dist_to_goal < 0.05:
+        #     reward += 20
+        #     self.terminated = True
+
+        if self.GRASPING_FLAG:
+            reward += 0.5
+            # print("CUBE Z:", self.cube.get_pos()[2])
+
+            # over starting high of 2cm
+            if self.cube.get_pos()[2] > 0.02:
+                reward += (self.cube.get_pos()[2] - 0.02) * 8
+
+            # Goal, über 10cm
+            if self.cube.get_pos()[2] > 0.09:
+                reward += 150
+                self.terminated = True
 
         return reward
-

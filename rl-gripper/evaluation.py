@@ -13,13 +13,15 @@ from stable_baselines3.common.env_util import make_vec_env
 
 log_path = os.path.join('rl_gripper', 'training', 'logs')
 save_path = os.path.join('rl_gripper', 'training', 'saved_models', 'best_model.zip')
+# save_path = os.path.join('rl_gripper', 'training', 'checkpoints', 'SAC_Model_New_550000_steps.zip')
+
 #tensorboard --logdir=D:\projects\rl-gripper\rl_gripper\training\logs\PPO_1
 #tensorboard --logdir=/home/dsuckfuell/rl-gripper/rl-gripper/rl_gripper/training/logs
 
 ### LOAD ENVIRONMENT ###
-env = gym.make("Gripper-v0")
+env = gym.make("Gripper-v0", cube_position='FIX')
 env = DummyVecEnv([lambda: env])    # Für eval nur das verwenden
-env = VecFrameStack(env, n_stack=4)
+#env = VecFrameStack(env, n_stack=8)
 
 # env_kwargs = {'render_mode': 'GUI'}
 # env = make_vec_env("Gripper-v0", n_envs=1, env_kwargs=env_kwargs)
@@ -29,7 +31,7 @@ env = VecFrameStack(env, n_stack=4)
 model = SAC.load(save_path, env=env)
 
 print("Evaluation:")
-print(evaluate_policy(model, env, n_eval_episodes=3, render=False))
+print(evaluate_policy(model, env, n_eval_episodes=8, render=False))
 
 
 ### TESTING ###

@@ -6,48 +6,93 @@ from stable_baselines3 import SAC, PPO
 from stable_baselines3.common.vec_env import DummyVecEnv, VecMonitor, VecEnv, VecNormalize, SubprocVecEnv
 from stable_baselines3.common.vec_env import VecFrameStack, VecTransposeImage
 from stable_baselines3.common.env_util import make_vec_env
-from stable_baselines3.common.callbacks import EvalCallback
+from stable_baselines3.common.callbacks import EvalCallback, CheckpointCallback
 import torch
 
-torch.cuda.empty_cache()
-
-# 2M timesteps in 39h
-
-log_path = os.path.join('rl_gripper', 'training', 'logs')
-save_path = os.path.join('rl_gripper', 'training', 'saved_models', 'SAC_Model_SimpleReward_1M')
 #tensorboard --logdir=D:\projects\rl-gripper\rl_gripper\training\logs\PPO_1
 #tensorboard --logdir=/home/dsuckfuell/rl-gripper/rl-gripper/rl_gripper/training/logs
 
+
+### CURRICULUM 1 ### FIX CUBE POSITION
+
+torch.cuda.empty_cache()
+log_path = os.path.join('rl_gripper', 'training', 'logs')
+save_path = os.path.join('rl_gripper', 'training', 'saved_models', 'SAC_Model_FP_FR_2M')
+
 ### LOAD TRAINING ENVIRONMENT ###
-env_kwargs = {'render_mode': 'DIRECT'}
+env_kwargs = {'render_mode': 'DIRECT', 'cube_position': 'FIX'}
 train_env = make_vec_env("Gripper-v0", n_envs=20, env_kwargs=env_kwargs)
 train_env = VecTransposeImage(train_env)
-train_env = VecFrameStack(train_env, n_stack=4)
+#train_env = VecFrameStack(train_env, n_stack=4)
 
 ### LOAD EVAL ENVIRONMENT ###
-env_kwargs = {'render_mode': 'DIRECT'}
-eval_env = make_vec_env("Gripper-v0", n_envs=1)
+env_kwargs = {'render_mode': 'DIRECT', 'cube_position': 'FIX'}
+eval_env = make_vec_env("Gripper-v0", n_envs=1, env_kwargs=env_kwargs)
 eval_env = VecTransposeImage(eval_env)
-eval_env = VecFrameStack(eval_env, n_stack=4)
+#eval_env = VecFrameStack(eval_env, n_stack=4)
+
+### CALLBACKS ###
 eval_callback = EvalCallback(eval_env, best_model_save_path=os.path.join('rl_gripper', 'training', 'saved_models'),
-                             eval_freq=5000,    #eval_freq = eval_freq * n_envs
+                             eval_freq=500,    #eval_freq = eval_freq * n_envs
                              deterministic=True, render=False)
+checkpoint_callback = CheckpointCallback(save_freq=500, save_path=os.path.join('rl_gripper', 'training', 'checkpoints'),
+                                         name_prefix='SAC_Model_FP_FR')
 
 ### TRAINING ###
 policy_kwargs = dict(
-    features_extractor_class=CustomCNN,
+    features_extractor_class=CustomResNetFeatureExtractor,
     features_extractor_kwargs=dict(features_dim=512),
 )
 
+
 model = SAC("CnnPolicy", train_env,
             verbose=1,
-            buffer_size=100000,
-            batch_size=5000,
+            buffer_size=500000,
+            batch_size=1024,
             ent_coef='auto',
             learning_rate=0.0003,
+            learning_starts=1000,
+            gamma=0.99,
             device='cuda',
             #policy_kwargs=policy_kwargs,
             tensorboard_log=log_path)
-model.learn(total_timesteps=1000000, callback=[eval_callback], progress_bar=True)
+model.learn(total_timesteps=2000000, callback=[eval_callback, checkpoint_callback], progress_bar=True)
 model.save(save_path)
+del model
+del train_env
+del eval_env
 
+
+# ### CURRICULUM 2 ### RANDOM CUBE POSITION
+#
+# torch.cuda.empty_cache()
+# log_path = os.path.join('rl_gripper', 'training', 'logs')
+# save_path = os.path.join('rl_gripper', 'training', 'saved_models', 'SAC_Model_SR2_550K_Curr2_4M')
+#
+# ### LOAD TRAINING ENVIRONMENT ###
+# env_kwargs = {'render_mode': 'DIRECT', 'cube_position': 'RANDOM'}
+# train_env = make_vec_env("Gripper-v0", n_envs=20, env_kwargs=env_kwargs)
+# train_env = VecTransposeImage(train_env)
+# train_env = VecFrameStack(train_env, n_stack=8)
+#
+# ### LOAD EVAL ENVIRONMENT ###
+# env_kwargs = {'render_mode': 'DIRECT', 'cube_position': 'RANDOM'}
+# eval_env = make_vec_env("Gripper-v0", n_envs=1, env_kwargs=env_kwargs)
+# eval_env = VecTransposeImage(eval_env)
+# eval_env = VecFrameStack(eval_env, n_stack=8)
+#
+# ### CALLBACKS ###
+# eval_callback = EvalCallback(eval_env, best_model_save_path=os.path.join('rl_gripper', 'training', 'saved_models'),
+#                              eval_freq=500,    #eval_freq = eval_freq * n_envs
+#                              deterministic=True, render=False)
+# checkpoint_callback = CheckpointCallback(save_freq=2500, save_path=os.path.join('rl_gripper', 'training', 'checkpoints'),
+#                                          name_prefix='SAC_Model_SR2_550K_Curr2_4M')
+#
+# ### TRAINING ###
+# model = SAC.load(os.path.join('rl_gripper', 'training', 'checkpoints', 'SAC_Model_New_550000_steps.zip'), env=train_env, buffer_size=500000, learning_rate=0.0002)
+#
+#
+# model.learn(total_timesteps=4000000, callback=[eval_callback, checkpoint_callback], progress_bar=True)
+# model.save(save_path)
+# del model
+#
