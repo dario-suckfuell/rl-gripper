@@ -1,7 +1,7 @@
 import gymnasium as gym
 import os
 from rl_gripper.envs.CustomGripperEnv import GripperEnv
-from rl_gripper.resources.classes.customClasses import TensorboardCallback, CustomCNN, CustomResNetFeatureExtractor
+from rl_gripper.resources.classes.customClasses import TensorboardCallback, CustomCNN, CustomCNN_attention, CustomCNN_big, CustomCNN_maxPooling
 from stable_baselines3 import SAC, PPO
 from stable_baselines3.common.vec_env import DummyVecEnv, VecMonitor, VecEnv, VecNormalize, SubprocVecEnv
 from stable_baselines3.common.vec_env import VecFrameStack, VecTransposeImage
@@ -13,50 +13,52 @@ import torch
 #tensorboard --logdir=/home/dsuckfuell/rl-gripper/rl-gripper/rl_gripper/training/logs
 
 
-### CURRICULUM 1 ### FIX CUBE POSITION
+### CURRICULUM 1 ###
 
 torch.cuda.empty_cache()
 log_path = os.path.join('rl_gripper', 'training', 'logs')
-save_path = os.path.join('rl_gripper', 'training', 'saved_models', 'SAC_Model_FP_FR_2M')
+save_path = os.path.join('rl_gripper', 'training', 'saved_models', 'SAC_Model_FP_FR_lr0006_1M')
 
 ### LOAD TRAINING ENVIRONMENT ###
 env_kwargs = {'render_mode': 'DIRECT', 'cube_position': 'FIX'}
-train_env = make_vec_env("Gripper-v0", n_envs=20, env_kwargs=env_kwargs)
+train_env = make_vec_env("Gripper-v0", n_envs=1, env_kwargs=env_kwargs)
 train_env = VecTransposeImage(train_env)
-#train_env = VecFrameStack(train_env, n_stack=4)
+#train_env = VecNormalize(train_env, training=False, norm_obs=False, norm_reward=True, clip_obs=10.)
+train_env = VecMonitor(train_env)
 
 ### LOAD EVAL ENVIRONMENT ###
 env_kwargs = {'render_mode': 'DIRECT', 'cube_position': 'FIX'}
 eval_env = make_vec_env("Gripper-v0", n_envs=1, env_kwargs=env_kwargs)
 eval_env = VecTransposeImage(eval_env)
-#eval_env = VecFrameStack(eval_env, n_stack=4)
+#eval_env = VecNormalize(eval_env, training=False, norm_obs=False, norm_reward=True, clip_obs=10.)
+eval_env = VecMonitor(eval_env)
+
 
 ### CALLBACKS ###
 eval_callback = EvalCallback(eval_env, best_model_save_path=os.path.join('rl_gripper', 'training', 'saved_models'),
-                             eval_freq=500,    #eval_freq = eval_freq * n_envs
+                             eval_freq=1000,    #eval_freq = eval_freq * n_envs
                              deterministic=True, render=False)
-checkpoint_callback = CheckpointCallback(save_freq=500, save_path=os.path.join('rl_gripper', 'training', 'checkpoints'),
-                                         name_prefix='SAC_Model_FP_FR')
+checkpoint_callback = CheckpointCallback(save_freq=10000, save_path=os.path.join('rl_gripper', 'training', 'checkpoints'),
+                                         name_prefix='SAC_Model_FP_FR_lr0006')
 
 ### TRAINING ###
 policy_kwargs = dict(
-    features_extractor_class=CustomResNetFeatureExtractor,
+    features_extractor_class=CustomCNN,
     features_extractor_kwargs=dict(features_dim=512),
 )
-
 
 model = SAC("CnnPolicy", train_env,
             verbose=1,
             buffer_size=500000,
-            batch_size=1024,
+            batch_size=4096,
             ent_coef='auto',
-            learning_rate=0.0003,
+            learning_rate=0.0006,
             learning_starts=1000,
             gamma=0.99,
             device='cuda',
-            #policy_kwargs=policy_kwargs,
+            policy_kwargs=policy_kwargs,
             tensorboard_log=log_path)
-model.learn(total_timesteps=2000000, callback=[eval_callback, checkpoint_callback], progress_bar=True)
+model.learn(total_timesteps=1000000, callback=[eval_callback, checkpoint_callback], progress_bar=True)
 model.save(save_path)
 del model
 del train_env

@@ -12,8 +12,9 @@ from stable_baselines3.common.env_util import make_vec_env
 
 
 log_path = os.path.join('rl_gripper', 'training', 'logs')
-save_path = os.path.join('rl_gripper', 'training', 'saved_models', 'best_model.zip')
-# save_path = os.path.join('rl_gripper', 'training', 'checkpoints', 'SAC_Model_New_550000_steps.zip')
+# save_path = os.path.join('rl_gripper', 'training', 'saved_models', 'best_model.zip')
+# save_path = os.path.join('rl_gripper', 'training', 'saved_models', 'SAC_Model_FP_SR_cnnBase_500K.zip')
+save_path = os.path.join('rl_gripper', 'training', 'checkpoints', 'SAC_Model_FP_FR_lr0006_940000_steps.zip')
 
 #tensorboard --logdir=D:\projects\rl-gripper\rl_gripper\training\logs\PPO_1
 #tensorboard --logdir=/home/dsuckfuell/rl-gripper/rl-gripper/rl_gripper/training/logs

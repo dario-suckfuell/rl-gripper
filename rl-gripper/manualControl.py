@@ -2,6 +2,7 @@ import gymnasium as gym
 import os
 import pybullet as p
 import numpy as np
+from rl_gripper.resources.classes.customClasses import RewardStandardizationWrapper
 from rl_gripper.envs.CustomGripperEnv import GripperEnv
 from stable_baselines3 import PPO
 from stable_baselines3.common.vec_env import DummyVecEnv, VecMonitor, VecEnv, SubprocVecEnv

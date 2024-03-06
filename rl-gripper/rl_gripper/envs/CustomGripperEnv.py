@@ -9,7 +9,7 @@ from rl_gripper.resources.classes.cube import Cube
 from rl_gripper.resources.classes.plane import Plane
 from rl_gripper.resources.classes.robot import Robot
 
-sim_length = 64
+sim_length = 82
 
 
 class GripperEnv(gym.Env):
@@ -21,8 +21,8 @@ class GripperEnv(gym.Env):
         # ACTION SPACE
 
         self.action_space = Box(
-            low=np.array([-1, -1, -1, -1], dtype=np.float16),
-            high=np.array([1, 1, 1, 1], dtype=np.float16))
+            low=np.array([-1, -1, -1], dtype=np.float16),
+            high=np.array([1, 1, 1], dtype=np.float16))
 
         # OBSERVATION SPACE (Greyscale Depth Image Input, Later also Gripper Width)
         self.observation_space = Box(low=0, high=255, shape=(64, 64, 1), dtype=np.uint8)
@@ -45,6 +45,7 @@ class GripperEnv(gym.Env):
         self.truncated = False
         self.COLLISION_FLAG = False
         self.GRASPING_FLAG = False
+        self.dist_to_goal = 100
 
         if render_mode == 'GUI':
             self.client = p.connect(p.GUI)
@@ -63,7 +64,7 @@ class GripperEnv(gym.Env):
     def step(self, action):
         # print("IN STEP FUNCTION:", action)
         ### ACTION ###
-        self.robot.apply_action_xyz(action)
+        self.robot.apply_action_xyz(action, self.dist_to_goal)
         p.stepSimulation()
 
         ### OBSERVATION ###
@@ -71,7 +72,7 @@ class GripperEnv(gym.Env):
         obs = depth
 
         ### REWARD ###
-        reward = self.calculate_reward_simple(depth, tcp, rgb_flat)
+        reward = self.calculate_reward(depth, tcp, rgb_flat)
 
         self.sim_length -= 1
         # print(self.sim_length)
@@ -136,6 +137,76 @@ class GripperEnv(gym.Env):
             self.GRASPING_FLAG = False
 
     def calculate_reward(self, depth, tcp, rgb_flat):
+        # ### SHAPED REWARD PERSONAL ###
+        # reward = -1.5  # Time penalty
+        #
+        # self.check_for_grasping()
+        # self.check_for_collisions()
+        #
+        # if self.COLLISION_FLAG:
+        #     reward -= 200
+        #     self.terminated = True
+        #
+        # # distance to goal (L2 Norm) NICHT OPTIMAL DA CUBE POS NOTWENDIG
+        # goal_xyz = self.cube.get_pos()
+        # dist_to_goal = math.sqrt(((tcp[0] - goal_xyz[0]) ** 2 +
+        #                           (tcp[1] - goal_xyz[1]) ** 2 +
+        #                           (tcp[2] - goal_xyz[2]) ** 2))
+        #
+        # # reward -= math.log2(1.2 * dist_to_goal + 1)
+        # reward -= 8 * dist_to_goal
+        #
+        # # if dist_to_goal < 0.05:
+        # #     reward += 200
+        # #     self.terminated = True
+        #
+        # if self.GRASPING_FLAG:
+        #     reward += 1.0
+        #     # print("CUBE Z:", self.cube.get_pos()[2])
+        #
+        #     # over starting high of 2cm
+        #     if self.cube.get_pos()[2] > 0.02:
+        #         reward += (self.cube.get_pos()[2] - 0.02) * 8
+        #
+        #     # Goal, über 10cm
+        #     if self.cube.get_pos()[2] > 0.09:
+        #         reward += 200
+        #         self.terminated = True
+
+        ### SHAPED REWARD THESIS ###
+        reward = -150  # Time penalty
+
+        self.check_for_grasping()
+        self.check_for_collisions()
+
+        if self.COLLISION_FLAG:
+            reward -= 20000
+            self.terminated = True
+
+        # distance to goal (L2 Norm) NICHT OPTIMAL DA CUBE POS NOTWENDIG
+        goal_xyz = self.cube.get_pos()
+        self.dist_to_goal = math.sqrt(((tcp[0] - goal_xyz[0]) ** 2 +
+                                  (tcp[1] - goal_xyz[1]) ** 2 +
+                                  (tcp[2] - goal_xyz[2]) ** 2))
+
+        reward -= 800 * self.dist_to_goal
+
+        if self.GRASPING_FLAG:
+            reward += 100
+            # print("CUBE Z:", self.cube.get_pos()[2])
+
+            # over starting high of 2cm
+            if self.cube.get_pos()[2] > 0.02:
+                reward += (self.cube.get_pos()[2] - 0.02) * 800
+
+            # Goal, über 9cm
+            if self.cube.get_pos()[2] > 0.09:
+                reward += 20000
+                self.terminated = True
+
+        return reward
+
+    def calculate_reward_simple(self, depth, tcp, rgb_flat):
         ### SHAPED REWARD ###
         reward = -2.0  # Time penalty
 
@@ -143,68 +214,21 @@ class GripperEnv(gym.Env):
         self.check_for_collisions()
 
         if self.COLLISION_FLAG:
-            reward -= 200
-            self.terminated = True
-
-        # REWARDING GREEN PIXELS
-        green_values = np.array(rgb_flat[1::4], dtype=np.int16)
-        blue_values = np.array(rgb_flat[2::4], dtype=np.int16)
-        true_green = green_values - blue_values  # otherwise white will also trigger the reward since it is [255, 255, 255]
-        true_green_count = len([pixel for pixel in true_green if pixel > 150])
-        # print("GreenPixelCount: {}".format(true_green_count))
-        # reward += np.clip(math.ceil(true_green_count / 50), 0, 49)
-        reward += np.clip(true_green_count / 125, 0, 0.9)
-        # print("GreenReward: {}".format(math.ceil(true_green_count / 10)))
-
-        if self.GRASPING_FLAG:
-            reward += 0.5
-
-            # over starting high of 2.7cm
-            if self.cube.get_pos()[2] > 0.027:
-                reward += (self.cube.get_pos()[2] - 0.027) * 10
-
-            # Goal, über 10cm
-            if self.cube.get_pos()[2] > 0.1:
-                reward += 400
-                self.terminated = True
-
-        return reward
-
-    def calculate_reward_simple(self, depth, tcp, rgb_flat):
-        ### SHAPED REWARD ###
-        reward = -1.0  # Time penalty
-
-        self.check_for_grasping()
-        self.check_for_collisions()
-
-        if self.COLLISION_FLAG:
-            reward -= 150
+            reward -= 1000
             self.terminated = True
 
         # distance to goal (L2 Norm) NICHT OPTIMAL DA CUBE POS NOTWENDIG
         goal_xyz = self.cube.get_pos()
-        dist_to_goal = math.sqrt(((tcp[0] - goal_xyz[0]) ** 2 +
+        self.dist_to_goal = math.sqrt(((tcp[0] - goal_xyz[0]) ** 2 +
                                   (tcp[1] - goal_xyz[1]) ** 2 +
                                   (tcp[2] - goal_xyz[2]) ** 2))
 
         # reward -= math.log2(1.2 * dist_to_goal + 1)
-        reward -= 4 * dist_to_goal
+        # reward -= (self.dist_to_goal ** 2) * 100 #erster Vergleich nicht besser als Linear
+        reward -= self.dist_to_goal * 20
 
-        # if dist_to_goal < 0.05:
-        #     reward += 20
-        #     self.terminated = True
-
-        if self.GRASPING_FLAG:
-            reward += 0.5
-            # print("CUBE Z:", self.cube.get_pos()[2])
-
-            # over starting high of 2cm
-            if self.cube.get_pos()[2] > 0.02:
-                reward += (self.cube.get_pos()[2] - 0.02) * 8
-
-            # Goal, über 10cm
-            if self.cube.get_pos()[2] > 0.09:
-                reward += 150
-                self.terminated = True
+        if self.dist_to_goal < 0.01:
+            reward += 1000
+            self.terminated = True
 
         return reward

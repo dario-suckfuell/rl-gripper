@@ -7,14 +7,14 @@ import os
 
 ### GRIPPER SETTINGS ###
 gripperIndices = [8, 9, 10, 11, 12, 13]
-maxJointVel = 8
+maxJointVel = 12
 endEffectorIdx = 14
 
 ### CAMERA SETTINGS ###
 width, height = 64, 64
 aspect = width / height
-near, far = 0.0005, 0.30
-fov = 130
+near, far = 0.0003, 0.25
+fov = 120
 
 
 class Robot:
@@ -37,6 +37,7 @@ class Robot:
                                     [joint_angles[4]], [joint_angles[5]]])
 
         self.state = np.array([*p.getLinkState(self.id, 14)[0], 0], dtype=np.float32)  # Start Position [X, Y, Z, Gw]
+        self.timer = 0
 
     def get_ids(self):
         return self.client, self.id
@@ -71,11 +72,14 @@ class Robot:
                                     maxVelocity=15,
                                     force=100)
 
-    def apply_action_xyz(self, action):
-        ### APPLY ACTION TO ACTUATORS ###
+    def apply_action_xyz(self, action, dist_to_goal):
+        ### APPLY POSITIONAL ACTION TO ACTUATORS - PIXEL TO RELATIVE POSITION ###
 
-        gripperWidth = np.clip(self.state[3] + 0.1 * action[3], 0.0, 0.85)
-        self.state[3] = gripperWidth
+        # gripperWidth = np.clip(self.state[3] + 0.1 * action[3], 0.0, 0.85)
+        # self.state[3] = gripperWidth
+
+        if dist_to_goal < 0.05:
+            self.close_gripper()
 
         ### POSITION ###
         rot_matrix_cam = np.array(p.getMatrixFromQuaternion(p.getLinkState(self.id, 14)[1])).reshape(3, 3)
@@ -106,12 +110,12 @@ class Robot:
                                     maxVelocity=maxJointVel,
                                     targetPosition=joint_angles[i])
 
-        for joint_index in gripperIndices:
-            p.setJointMotorControl2(self.id, joint_index,
-                                    controlMode=p.POSITION_CONTROL,
-                                    targetPosition=gripperWidth,
-                                    maxVelocity=15,
-                                    force=100)
+        # for joint_index in gripperIndices:
+        #     p.setJointMotorControl2(self.id, joint_index,
+        #                             controlMode=p.POSITION_CONTROL,
+        #                             targetPosition=gripperWidth,
+        #                             maxVelocity=15,
+        #                             force=100)
 
     def get_observation(self):
         # Get camera output
@@ -139,9 +143,15 @@ class Robot:
         # Get observation of Tool Center Point
         coords_l = p.getLinkState(self.id, 9)[0]
         coords_r = p.getLinkState(self.id, 12)[0]
-        tcp = ((coords_l[0] + coords_r[0]) / 2, (coords_l[1] + coords_r[1]) / 2, (coords_l[2] + coords_r[2]) / 2)
+
+        tcp_world = ((coords_l[0] + coords_r[0]) / 2, (coords_l[1] + coords_r[1]) / 2, (coords_l[2] + coords_r[2]) / 2)   # TCP im World Frame
+        rot_matrix_cam = np.array(p.getMatrixFromQuaternion(p.getLinkState(self.id, 14)[1])).reshape(3, 3)
+        tcp_cam_correction = [0, 0, 0.02]
+        tcp_world_correction = rot_matrix_cam @ tcp_cam_correction
+        tcp = tcp_world + tcp_world_correction
+
         # print(tcp)
-        p.addUserDebugLine(tcp, [tcp[0], tcp[1], tcp[2] - 0.01], [1, 0, 0], 10, 0.1)
+        p.addUserDebugLine(tcp, [tcp[0], tcp[1], tcp[2] - 0.005], [1, 0, 0], 10, 0.1)
 
         # Maybe get observation of Gripper Width
 
@@ -166,6 +176,18 @@ class Robot:
         z = w1 * z2 + x1 * y2 - y1 * x2 + z1 * w2
 
         return (x, y, z, w)
+
+    def close_gripper(self):
+
+        gripperWidth = np.clip(self.state[3] + 0.1 * 1.6, 0.0, 0.7)
+        self.state[3] = gripperWidth
+
+        for joint_index in gripperIndices:
+            p.setJointMotorControl2(self.id, joint_index,
+                                    controlMode=p.POSITION_CONTROL,
+                                    targetPosition=gripperWidth,
+                                    maxVelocity=20,
+                                    force=300)
 
 
 '''

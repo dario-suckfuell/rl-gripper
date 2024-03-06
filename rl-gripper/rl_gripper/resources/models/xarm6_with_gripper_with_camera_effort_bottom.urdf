@@ -344,6 +344,9 @@
     </collision>
   </link>
   <link name="left_outer_knuckle">
+      <contact>
+      <contact_erp value="0.8"/>
+    </contact>
     <inertial>
       <origin rpy="0 0 0" xyz="2.9948E-14 0.021559 0.015181"/>
       <mass value="0.033618"/>
@@ -374,10 +377,10 @@
   </joint>
   <link name="left_finger">
   <contact>
-      <lateral_friction value="2"/>
+      <lateral_friction value="1"/>
       <rolling_friction value="0.001"/>
       <contact_cfm value="0.001"/>
-      <contact_erp value="1.0"/>
+      <contact_erp value="0.8"/>
     </contact>
     <inertial>
       <origin rpy="0 0 0" xyz="-2.4536E-14 -0.016413 0.029258"/>
@@ -410,6 +413,9 @@
 	<dynamics damping="1000.0" friction="0.5"/>
   </joint>
   <link name="left_inner_knuckle">
+      <contact>
+      <contact_erp value="0.8"/>
+    </contact>
     <inertial>
       <origin rpy="0 0 0" xyz="1.86600784687907E-06 0.0220467847633621 0.0261334672830885"/>
       <mass value="0.0230125781256706"/>
@@ -440,6 +446,9 @@
     <mimic joint="drive_joint" multiplier="1" offset="0"/>
   </joint>
   <link name="right_outer_knuckle">
+    <contact>
+      <contact_erp value="0.8"/>
+    </contact>
     <inertial>
       <origin rpy="0 0 0" xyz="-3.1669E-14 -0.021559 0.015181"/>
       <mass value="0.033618"/>
@@ -471,10 +480,10 @@
   </joint>
   <link name="right_finger">
   <contact>
-      <lateral_friction value="2"/>
+      <lateral_friction value="1"/>
       <rolling_friction value="0.001"/>
       <contact_cfm value="0.001"/>
-      <contact_erp value="1.0"/>
+      <contact_erp value="0.8"/>
     </contact>
     <inertial>
       <origin rpy="0 0 0" xyz="2.5618E-14 0.016413 0.029258"/>
@@ -507,6 +516,9 @@
 	<dynamics damping="10000.0" friction="0.5"/>
   </joint>
   <link name="right_inner_knuckle">
+      <contact>
+      <contact_erp value="0.8"/>
+    </contact>
     <inertial>
       <origin rpy="0 0 0" xyz="1.866E-06 -0.022047 0.026133"/>
       <mass value="0.023013"/>
@@ -539,10 +551,12 @@
   <link name="camera_link">
     <visual>
       <geometry>
-		<box size="0.013 0.013 0.05"/>
+	<box size="0.013 0.013 0.03"/>
       </geometry>
-      <origin rpy="0 0 0" xyz="0 0.00064 -0.00952"/>
-      <material name="Red"/>
+      <origin rpy="0 0 0" xyz="0 0.00064 -0.025"/>
+      <material name="Camera">
+      	<color rgba="0.753 0.1 0.1 1.0"/>
+      </material>
     </visual>
 	<inertial>
       <origin rpy="0 0 0" xyz="0 0 0"/>
@@ -553,7 +567,7 @@
   <joint name="camera_joint" type="fixed">
     <parent link="link6"/>
     <child link="camera_link"/>
-    <origin rpy="0 0 0" xyz="0 0 0.11"/>
+    <origin rpy="0 0 0" xyz="0 0 0.115"/>
     <axis xyz="0 0 1"/>
   </joint>
   <link name="camera_target_link">
