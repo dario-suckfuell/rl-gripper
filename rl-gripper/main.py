@@ -17,7 +17,7 @@ import torch
 
 torch.cuda.empty_cache()
 log_path = os.path.join('rl_gripper', 'training', 'logs')
-save_path = os.path.join('rl_gripper', 'training', 'saved_models', 'SAC_Model_FP_FR_lr0006_1M')
+save_path = os.path.join('rl_gripper', 'training', 'saved_models', 'SAC_Model_FP_FR_6M')
 
 ### LOAD TRAINING ENVIRONMENT ###
 env_kwargs = {'render_mode': 'DIRECT', 'cube_position': 'FIX'}
@@ -38,8 +38,8 @@ eval_env = VecMonitor(eval_env)
 eval_callback = EvalCallback(eval_env, best_model_save_path=os.path.join('rl_gripper', 'training', 'saved_models'),
                              eval_freq=1000,    #eval_freq = eval_freq * n_envs
                              deterministic=True, render=False)
-checkpoint_callback = CheckpointCallback(save_freq=10000, save_path=os.path.join('rl_gripper', 'training', 'checkpoints'),
-                                         name_prefix='SAC_Model_FP_FR_lr0006')
+checkpoint_callback = CheckpointCallback(save_freq=50000, save_path=os.path.join('rl_gripper', 'training', 'checkpoints'),
+                                         name_prefix='SAC_Model_FP_FR')
 
 ### TRAINING ###
 policy_kwargs = dict(
@@ -50,15 +50,15 @@ policy_kwargs = dict(
 model = SAC("CnnPolicy", train_env,
             verbose=1,
             buffer_size=500000,
-            batch_size=4096,
+            batch_size=7000,
             ent_coef='auto',
-            learning_rate=0.0006,
-            learning_starts=1000,
+            learning_rate=0.0003,
+            learning_starts=10000,
             gamma=0.99,
             device='cuda',
             policy_kwargs=policy_kwargs,
             tensorboard_log=log_path)
-model.learn(total_timesteps=1000000, callback=[eval_callback, checkpoint_callback], progress_bar=True)
+model.learn(total_timesteps=6000000, callback=[eval_callback, checkpoint_callback], progress_bar=True)
 model.save(save_path)
 del model
 del train_env

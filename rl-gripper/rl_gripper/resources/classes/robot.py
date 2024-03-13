@@ -29,8 +29,8 @@ class Robot:
         self.client = client
         self.id = p.loadURDF(f_path, robot_start_pos, robot_start_orn, flags=p.URDF_MAINTAIN_LINK_ORDER)
 
-        start_orn_cam = p.getQuaternionFromEuler([math.pi, 0, 0])
-        joint_angles = p.calculateInverseKinematics(self.id, endEffectorIdx, [0.3, 0, 0.25], start_orn_cam,
+        self.start_orn_cam = p.getQuaternionFromEuler([math.pi, 0, 0])
+        joint_angles = p.calculateInverseKinematics(self.id, endEffectorIdx, [0.3, 0, 0.25], self.start_orn_cam,
                                                     lowerLimits=self.ll_joints, upperLimits=self.ul_joints)
         p.resetJointStatesMultiDof(self.id, [1, 2, 3, 4, 5, 6],
                                    [[joint_angles[0]], [joint_angles[1]], [joint_angles[2]], [joint_angles[3]],
@@ -101,7 +101,7 @@ class Robot:
         # rot_quat = np.array([0, 0, -math.sin(rot_winkel/2), math.cos(rot_winkel/2)])
         # next_cam_orn_world = self.multiply_quaternions(curr_cam_orn_world, rot_quat)
 
-        joint_angles = p.calculateInverseKinematics(self.id, endEffectorIdx, next_cam_pos_world, curr_cam_orn_world,
+        joint_angles = p.calculateInverseKinematics(self.id, endEffectorIdx, next_cam_pos_world, self.start_orn_cam,
                                                     lowerLimits=self.ll_joints, upperLimits=self.ul_joints)
 
         for i in range(6):

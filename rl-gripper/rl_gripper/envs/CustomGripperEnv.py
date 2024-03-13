@@ -137,50 +137,14 @@ class GripperEnv(gym.Env):
             self.GRASPING_FLAG = False
 
     def calculate_reward(self, depth, tcp, rgb_flat):
-        # ### SHAPED REWARD PERSONAL ###
-        # reward = -1.5  # Time penalty
-        #
-        # self.check_for_grasping()
-        # self.check_for_collisions()
-        #
-        # if self.COLLISION_FLAG:
-        #     reward -= 200
-        #     self.terminated = True
-        #
-        # # distance to goal (L2 Norm) NICHT OPTIMAL DA CUBE POS NOTWENDIG
-        # goal_xyz = self.cube.get_pos()
-        # dist_to_goal = math.sqrt(((tcp[0] - goal_xyz[0]) ** 2 +
-        #                           (tcp[1] - goal_xyz[1]) ** 2 +
-        #                           (tcp[2] - goal_xyz[2]) ** 2))
-        #
-        # # reward -= math.log2(1.2 * dist_to_goal + 1)
-        # reward -= 8 * dist_to_goal
-        #
-        # # if dist_to_goal < 0.05:
-        # #     reward += 200
-        # #     self.terminated = True
-        #
-        # if self.GRASPING_FLAG:
-        #     reward += 1.0
-        #     # print("CUBE Z:", self.cube.get_pos()[2])
-        #
-        #     # over starting high of 2cm
-        #     if self.cube.get_pos()[2] > 0.02:
-        #         reward += (self.cube.get_pos()[2] - 0.02) * 8
-        #
-        #     # Goal, über 10cm
-        #     if self.cube.get_pos()[2] > 0.09:
-        #         reward += 200
-        #         self.terminated = True
-
-        ### SHAPED REWARD THESIS ###
-        reward = -150  # Time penalty
+        ### SHAPED REWARD PERSONAL ###
+        reward = -1.5  # Time penalty
 
         self.check_for_grasping()
         self.check_for_collisions()
 
         if self.COLLISION_FLAG:
-            reward -= 20000
+            reward -= 200
             self.terminated = True
 
         # distance to goal (L2 Norm) NICHT OPTIMAL DA CUBE POS NOTWENDIG
@@ -189,26 +153,27 @@ class GripperEnv(gym.Env):
                                   (tcp[1] - goal_xyz[1]) ** 2 +
                                   (tcp[2] - goal_xyz[2]) ** 2))
 
-        reward -= 800 * self.dist_to_goal
+        reward -= 10 * self.dist_to_goal
 
         if self.GRASPING_FLAG:
-            reward += 100
+            reward += 1.0
             # print("CUBE Z:", self.cube.get_pos()[2])
+            # print("GRASPING!")
 
             # over starting high of 2cm
             if self.cube.get_pos()[2] > 0.02:
-                reward += (self.cube.get_pos()[2] - 0.02) * 800
+                reward += (self.cube.get_pos()[2] - 0.02) * 7
 
             # Goal, über 9cm
             if self.cube.get_pos()[2] > 0.09:
-                reward += 20000
+                reward += 200
                 self.terminated = True
 
         return reward
 
     def calculate_reward_simple(self, depth, tcp, rgb_flat):
         ### SHAPED REWARD ###
-        reward = -2.0  # Time penalty
+        reward = -4.0 # Time penalty
 
         self.check_for_grasping()
         self.check_for_collisions()
@@ -223,12 +188,42 @@ class GripperEnv(gym.Env):
                                   (tcp[1] - goal_xyz[1]) ** 2 +
                                   (tcp[2] - goal_xyz[2]) ** 2))
 
-        # reward -= math.log2(1.2 * dist_to_goal + 1)
-        # reward -= (self.dist_to_goal ** 2) * 100 #erster Vergleich nicht besser als Linear
-        reward -= self.dist_to_goal * 20
+        # reward += math.exp(-10 * self.dist_to_goal)
+        reward += 2 - (self.dist_to_goal ** 2) * 100    #erster Vergleich nicht besser als Linear
+        # reward -= self.dist_to_goal * 20
 
-        if self.dist_to_goal < 0.01:
+        if self.dist_to_goal < 0.02:
             reward += 1000
             self.terminated = True
 
         return reward
+
+    def calculate_reward_thesis(self, depth, tcp, rgb_flat):
+        ### SHAPED REWARD THESIS ###
+        reward = -200  # Time penalty
+
+        self.check_for_grasping()
+        self.check_for_collisions()
+
+        if self.COLLISION_FLAG:
+            reward -= 10000
+            self.terminated = True
+
+        # distance to goal (L2 Norm) NICHT OPTIMAL DA CUBE POS NOTWENDIG
+
+
+        if self.GRASPING_FLAG:
+            reward += 100
+            # print("CUBE Z:", self.cube.get_pos()[2])
+
+            # over starting high of 2cm
+            if self.cube.get_pos()[2] > 0.02:
+                reward += (self.cube.get_pos()[2] - 0.02) * 1000
+
+            # Goal, über 9cm
+            if self.cube.get_pos()[2] > 0.09:
+                reward += 10000
+                self.terminated = True
+
+        return reward
+
