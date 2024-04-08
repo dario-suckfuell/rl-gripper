@@ -89,7 +89,7 @@ class GripperEnv(gym.Env):
 
     def reset(self, seed=None, options=None):
         p.resetSimulation(self.client)
-        p.setGravity(0, 0, -9.81)
+        #p.setGravity(0, 0, -9.81)
 
         self.sim_length = sim_length
         self.terminated = False
@@ -138,13 +138,13 @@ class GripperEnv(gym.Env):
 
     def calculate_reward(self, depth, tcp, rgb_flat):
         ### SHAPED REWARD PERSONAL ###
-        reward = -150  # Time penalty
+        reward = -3  # Time penalty
 
         self.check_for_grasping()
         self.check_for_collisions()
 
         if self.COLLISION_FLAG:
-            reward -= 20000
+            reward -= 200
             self.terminated = True
 
         # distance to goal (L2 Norm) NICHT OPTIMAL DA CUBE POS NOTWENDIG
@@ -153,21 +153,22 @@ class GripperEnv(gym.Env):
                                        (tcp[1] - goal_xyz[1]) ** 2 +
                                        (tcp[2] - goal_xyz[2]) ** 2))
 
-        reward -= 1000 * self.dist_to_goal
+        # reward -= 10 * self.dist_to_goal
 
-        if self.GRASPING_FLAG:
-            reward += 1000
+        if self.dist_to_goal < 0.04:
+            reward += 1
             # print("CUBE Z:", self.cube.get_pos()[2])
             # print("GRASPING!")
+            if self.GRASPING_FLAG:
+                reward += 1
+                # over starting high of 2cm
+                if self.cube.get_pos()[2] > 0.02:
+                    reward += (self.cube.get_pos()[2] - 0.02) * 10
 
-            # over starting high of 2cm
-            if self.cube.get_pos()[2] > 0.02:
-                reward += (self.cube.get_pos()[2] - 0.02) * 700
-
-            # Goal, über 9cm
-            if self.cube.get_pos()[2] > 0.09:
-                reward += 20000
-                self.terminated = True
+                # Goal, über 9cm
+                if self.cube.get_pos()[2] > 0.09:
+                    reward += 200
+                    self.terminated = True
 
         return reward
 
@@ -189,8 +190,8 @@ class GripperEnv(gym.Env):
                                   (tcp[2] - goal_xyz[2]) ** 2))
 
         # reward += math.exp(-10 * self.dist_to_goal)
-        reward += 2 - (self.dist_to_goal ** 2) * 100    #erster Vergleich nicht besser als Linear
-        # reward -= self.dist_to_goal * 20
+        # reward += 2 - (self.dist_to_goal ** 2) * 100    #erster Vergleich nicht besser als Linear
+        reward -= self.dist_to_goal * 20
 
         if self.dist_to_goal < 0.02:
             reward += 1000
@@ -210,7 +211,6 @@ class GripperEnv(gym.Env):
             self.terminated = True
 
         # distance to goal (L2 Norm) NICHT OPTIMAL DA CUBE POS NOTWENDIG
-
 
         if self.GRASPING_FLAG:
             reward += 100

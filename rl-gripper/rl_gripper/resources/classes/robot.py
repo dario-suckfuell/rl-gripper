@@ -13,7 +13,7 @@ endEffectorIdx = 14
 ### CAMERA SETTINGS ###
 width, height = 64, 64
 aspect = width / height
-near, far = 0.0003, 0.25
+near, far = 0.0003, 0.3
 fov = 120
 
 
@@ -22,7 +22,7 @@ class Robot:
     def __init__(self, client):
         robot_start_pos = [0, 0, 0.01]
         robot_start_orn = p.getQuaternionFromEuler([0, 0, 0])
-        f_path = "rl_gripper/resources/models/xarm6_with_gripper_with_camera_effort_bottom.urdf"
+        f_path = "rl_gripper/resources/models/robot.urdf"
         self.ll_joints = np.array([-6.283, -2.059, -3.927, -6.283, -1.692, -6.283])
         self.ul_joints = np.array([6.283, 2.094, 0.191, 6.283, 3.141, 6.283])
 
@@ -30,7 +30,7 @@ class Robot:
         self.id = p.loadURDF(f_path, robot_start_pos, robot_start_orn, flags=p.URDF_MAINTAIN_LINK_ORDER)
 
         self.start_orn_cam = p.getQuaternionFromEuler([math.pi, 0, 0])
-        joint_angles = p.calculateInverseKinematics(self.id, endEffectorIdx, [0.3, 0, 0.25], self.start_orn_cam,
+        joint_angles = p.calculateInverseKinematics(self.id, endEffectorIdx, [0.35, 0, 0.25], self.start_orn_cam,
                                                     lowerLimits=self.ll_joints, upperLimits=self.ul_joints)
         p.resetJointStatesMultiDof(self.id, [1, 2, 3, 4, 5, 6],
                                    [[joint_angles[0]], [joint_angles[1]], [joint_angles[2]], [joint_angles[3]],
@@ -78,7 +78,7 @@ class Robot:
         # gripperWidth = np.clip(self.state[3] + 0.1 * action[3], 0.0, 0.85)
         # self.state[3] = gripperWidth
 
-        if dist_to_goal < 0.05:
+        if dist_to_goal < 0.04:
             self.close_gripper()
 
         ### POSITION ###
@@ -146,7 +146,7 @@ class Robot:
 
         tcp_world = ((coords_l[0] + coords_r[0]) / 2, (coords_l[1] + coords_r[1]) / 2, (coords_l[2] + coords_r[2]) / 2)   # TCP im World Frame
         rot_matrix_cam = np.array(p.getMatrixFromQuaternion(p.getLinkState(self.id, 14)[1])).reshape(3, 3)
-        tcp_cam_correction = [0, 0, 0.02]
+        tcp_cam_correction = [0, 0, 0.025]
         tcp_world_correction = rot_matrix_cam @ tcp_cam_correction
         tcp = tcp_world + tcp_world_correction
 

@@ -8,6 +8,8 @@ from stable_baselines3.common.vec_env import VecFrameStack, VecTransposeImage
 from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.callbacks import EvalCallback, CheckpointCallback
 import torch
+from stable_baselines3.her.her_replay_buffer import HerReplayBuffer
+
 
 #tensorboard --logdir=D:\projects\rl-gripper\rl_gripper\training\logs\PPO_1
 #tensorboard --logdir=/home/dsuckfuell/rl-gripper/rl-gripper/rl_gripper/training/logs
@@ -17,7 +19,7 @@ import torch
 
 torch.cuda.empty_cache()
 log_path = os.path.join('rl_gripper', 'training', 'logs')
-save_path = os.path.join('rl_gripper', 'training', 'saved_models', 'SAC_Model_FP_FR_6M')
+save_path = os.path.join('rl_gripper', 'training', 'saved_models', 'SAC_Model_FP_FR_8M')
 
 ### LOAD TRAINING ENVIRONMENT ###
 env_kwargs = {'render_mode': 'DIRECT', 'cube_position': 'FIX'}
@@ -34,31 +36,36 @@ eval_env = VecTransposeImage(eval_env)
 eval_env = VecMonitor(eval_env)
 
 
-### CALLBACKS ###
+### CALLBACKS ### (mitverantwortlich für FPS)
 eval_callback = EvalCallback(eval_env, best_model_save_path=os.path.join('rl_gripper', 'training', 'saved_models'),
-                             eval_freq=1000,    #eval_freq = eval_freq * n_envs
+                             eval_freq=5000,    #eval_freq = eval_freq * n_envs
                              deterministic=True, render=False)
-checkpoint_callback = CheckpointCallback(save_freq=50000, save_path=os.path.join('rl_gripper', 'training', 'checkpoints'),
-                                         name_prefix='SAC_Model_FP_FR')
+checkpoint_callback = CheckpointCallback(save_freq=20000, save_path=os.path.join('rl_gripper', 'training', 'checkpoints'),
+                                         name_prefix='SAC_Model_FP_FR_8M')
 
 ### TRAINING ###
 policy_kwargs = dict(
     features_extractor_class=CustomCNN,
     features_extractor_kwargs=dict(features_dim=512),
+    #activation_fn=torch.nn.Tanh,
+    #net_arch,
 )
 
-model = SAC("CnnPolicy", train_env,
-            verbose=1,
-            buffer_size=500000,
-            batch_size=7000,
-            ent_coef='auto',
-            learning_rate=0.0002,
-            learning_starts=10000,
-            gamma=0.99,
-            device='cuda',
-            policy_kwargs=policy_kwargs,
-            tensorboard_log=log_path)
-model.learn(total_timesteps=6000000, callback=[eval_callback, checkpoint_callback], progress_bar=True)
+# model = SAC("CnnPolicy", train_env,
+#             verbose=1,
+#             buffer_size=500000,
+#             batch_size=7000,
+#             ent_coef='auto',
+#             learning_rate=0.0003,
+#             learning_starts=10000,
+#             gamma=0.99,
+#             device='cuda',
+#             policy_kwargs=policy_kwargs,
+#             tensorboard_log=log_path)
+
+model = SAC.load(os.path.join('rl_gripper', 'training', 'saved_models', 'best_model'), env=train_env)
+
+model.learn(total_timesteps=4000000, callback=[eval_callback, checkpoint_callback], progress_bar=True)
 model.save(save_path)
 del model
 del train_env

@@ -11,7 +11,7 @@ class Cube:
         # DEBUG_CUBE self.id = p.loadURDF(f_path, [0.21, 0, 0.025], p.getQuaternionFromEuler([0, 0, 0]))
 
         if cube_position == 'FIX':
-            startPosCube = [0.32, 0, 0.02]
+            startPosCube = [0.35, 0, 0.02]
         elif cube_position == 'RANDOM':
             startPosCube = [random.uniform(0.2, 0.5), random.uniform(-.15, .15), 0.02]
             # startPosCube = [random.uniform(0.4, 0.5), random.uniform(-.05, .05), 0.02]   #Kleiner Radius
@@ -23,3 +23,4 @@ class Cube:
 
     def get_pos(self):
         return p.getBasePositionAndOrientation(self.id)[0]
+
