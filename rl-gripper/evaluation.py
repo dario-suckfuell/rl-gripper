@@ -12,16 +12,17 @@ from stable_baselines3.common.env_util import make_vec_env
 
 
 log_path = os.path.join('rl_gripper', 'training', 'logs')
-save_path = os.path.join('rl_gripper', 'training', 'saved_models', 'best_model')
-#save_path = os.path.join('rl_gripper', 'training', 'saved_models', 'Vergleich_05', 'SAC_01')
-#save_path = os.path.join('rl_gripper', 'training', 'checkpoints', 'SAC_Model_FP_FR_8M_6000000_steps')
+#save_path = os.path.join('rl_gripper', 'training', 'saved_models', 'best_model')
+#save_path = os.path.join('rl_gripper', 'training', 'saved_models', 'coords_input_one')
+save_path = os.path.join('rl_gripper', 'training', 'checkpoints', 'SAC_FR_RP_200k_2048_1580000_steps')
 
 #tensorboard --logdir=D:\projects\rl-gripper\rl_gripper\training\logs\PPO_1
-#tensorboard --logdir=/home/dsuckfuell/rl-gripper/rl-gripper/rl_gripper/training/logs
+#tensorboard --logdir=/home/dsuckfuell/rl-gripper/rl-gripper/rl_gripper/training/logs/coords_input
 
 ### LOAD ENVIRONMENT ###
-env = gym.make("Gripper-v0", cube_position='FIX')
+env = gym.make("Gripper-v0", cube_position='RANDOM')
 env = DummyVecEnv([lambda: env])    # Für eval nur das verwenden
+env = VecMonitor(env)
 #env = VecFrameStack(env, n_stack=8)
 
 # env_kwargs = {'render_mode': 'GUI'}

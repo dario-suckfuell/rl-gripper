@@ -7,7 +7,7 @@ import os
 
 ### GRIPPER SETTINGS ###
 gripperIndices = [8, 9, 10, 11, 12, 13]
-maxJointVel = 12
+maxJointVel = 8
 endEffectorIdx = 14
 
 ### CAMERA SETTINGS ###
@@ -117,7 +117,7 @@ class Robot:
         #                             maxVelocity=15,
         #                             force=100)
 
-    def get_observation(self):
+    def get_camera_data(self):
         # Get camera output
         camera_pos = p.getLinkState(self.id, 14)[0]
         rot_matrix = np.array(p.getMatrixFromQuaternion(p.getLinkState(self.id, 14)[1])).reshape(3, 3)
@@ -140,11 +140,15 @@ class Robot:
         # rgb_flat = np.array(rgb_flat.reshape(16384, 1)).ravel()
         depth = (np.array(depth) * 255).reshape(width, height, 1).astype(np.uint8)
 
+        return depth, rgb_flat
+
+    def get_tcp_world(self):
         # Get observation of Tool Center Point
         coords_l = p.getLinkState(self.id, 9)[0]
         coords_r = p.getLinkState(self.id, 12)[0]
 
-        tcp_world = ((coords_l[0] + coords_r[0]) / 2, (coords_l[1] + coords_r[1]) / 2, (coords_l[2] + coords_r[2]) / 2)   # TCP im World Frame
+        tcp_world = ((coords_l[0] + coords_r[0]) / 2, (coords_l[1] + coords_r[1]) / 2,
+                     (coords_l[2] + coords_r[2]) / 2)  # TCP im World Frame
         rot_matrix_cam = np.array(p.getMatrixFromQuaternion(p.getLinkState(self.id, 14)[1])).reshape(3, 3)
         tcp_cam_correction = [0, 0, 0.025]
         tcp_world_correction = rot_matrix_cam @ tcp_cam_correction
@@ -152,10 +156,7 @@ class Robot:
 
         # print(tcp)
         p.addUserDebugLine(tcp, [tcp[0], tcp[1], tcp[2] - 0.005], [1, 0, 0], 10, 0.1)
-
-        # Maybe get observation of Gripper Width
-
-        return depth, tcp, rgb_flat
+        return tcp
 
     def print_joint_info(self):
         joint_info = []
