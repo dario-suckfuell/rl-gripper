@@ -4,6 +4,7 @@ import numpy as np
 import math
 import random
 import os
+import ntpath
 
 ### GRIPPER SETTINGS ###
 gripperIndices = [8, 9, 10, 11, 12, 13]
@@ -19,7 +20,7 @@ fov = 120
 
 class Robot:
 
-    def __init__(self, client):
+    def __init__(self, client, gripper_start_pos):
         robot_start_pos = [0, 0, 0.01]
         robot_start_orn = p.getQuaternionFromEuler([0, 0, 0])
         f_path = "rl_gripper/resources/models/robot.urdf"
@@ -29,8 +30,10 @@ class Robot:
         self.client = client
         self.id = p.loadURDF(f_path, robot_start_pos, robot_start_orn, flags=p.URDF_MAINTAIN_LINK_ORDER)
 
-        self.start_orn_cam = p.getQuaternionFromEuler([math.pi, 0, 0])
-        joint_angles = p.calculateInverseKinematics(self.id, endEffectorIdx, [0.35, 0, 0.25], self.start_orn_cam,
+        self.gripper_start_pos = gripper_start_pos
+        self.gripper_start_orn = p.getQuaternionFromEuler([math.pi, 0, 0])
+
+        joint_angles = p.calculateInverseKinematics(self.id, endEffectorIdx, self.gripper_start_pos, self.gripper_start_orn,
                                                     lowerLimits=self.ll_joints, upperLimits=self.ul_joints)
         p.resetJointStatesMultiDof(self.id, [1, 2, 3, 4, 5, 6],
                                    [[joint_angles[0]], [joint_angles[1]], [joint_angles[2]], [joint_angles[3]],
@@ -96,12 +99,12 @@ class Robot:
         # next_cam_orn_world = p.getQuaternionFromEuler(curr_cam_orn_world + action_orn_world)
 
         ### ORIENTATION QUATS ###
-        curr_cam_orn_world = p.getLinkState(self.id, 14)[1]
+        # curr_cam_orn_world = p.getLinkState(self.id, 14)[1]
         # rot_winkel = action[3]
         # rot_quat = np.array([0, 0, -math.sin(rot_winkel/2), math.cos(rot_winkel/2)])
         # next_cam_orn_world = self.multiply_quaternions(curr_cam_orn_world, rot_quat)
 
-        joint_angles = p.calculateInverseKinematics(self.id, endEffectorIdx, next_cam_pos_world, self.start_orn_cam,
+        joint_angles = p.calculateInverseKinematics(self.id, endEffectorIdx, next_cam_pos_world, self.gripper_start_orn,
                                                     lowerLimits=self.ll_joints, upperLimits=self.ul_joints)
 
         for i in range(6):

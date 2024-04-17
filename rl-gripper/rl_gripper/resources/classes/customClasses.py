@@ -141,6 +141,7 @@ class CustomCNN_big(BaseFeaturesExtractor):
     def forward(self, observation: torch.tensor) -> torch.Tensor:
         return self.linear(self.cnn(observation))
 
+
 ### VORTRAINIERTES RESNET ###
 class CustomResNetFeatureExtractor(BaseFeaturesExtractor):
     def __init__(self, observation_space: spaces.Box, features_dim: int = 512):
@@ -173,6 +174,7 @@ class CustomResNetFeatureExtractor(BaseFeaturesExtractor):
         return self.resnet(observations)
 
 
+
 class TensorboardCallback(BaseCallback):
     # Custom callback for plotting additional values in tensorboard.
     def __init__(self, verbose=0):
@@ -180,9 +182,11 @@ class TensorboardCallback(BaseCallback):
 
     def _on_step(self) -> bool:
         # Log additional stats
-        value = random.randint(-1, 1)
-        self.logger.record('Random Value', value)
-        print(locals())
+        success_rate = self.training_env.unwrapped.get_attr("success_rate")[0]
+        self.logger.record('custom/success_rate', success_rate)
+
+        gripperStartPos = self.training_env.unwrapped.get_attr("gripper_start_pos")[0]
+        self.logger.record('custom/gripper_start_height', gripperStartPos[2])
 
         # if 'approx_kl' in self.locals:
         #     approx_kl = self.locals['approx_kl']
@@ -206,3 +210,35 @@ class SelfAttention(nn.Module):
         x = x.permute(1, 0, 2)  # [seq_len, batch_size, features] -> [batch_size, seq_len, features]
         return x
 
+
+class CurriculumCallback(BaseCallback):
+    def __init__(self, model, verbose=0):
+        super(CurriculumCallback, self).__init__(verbose)
+        self.model = model  # Store the model instance
+        self.eval_freq = 1000  # Evaluate every 1000 steps
+        self.threshold_for_increase = 0.8
+        self.threshold_for_decrease = 0.3
+        self.success_rate = 0
+        self.n_steps = 0
+
+    def _on_step(self) -> bool:
+        """This method will be called by Stable Baselines3 at each environment step."""
+        self.n_steps += 1
+        # Check if it's time to evaluate the performance
+        if self.n_steps % self.eval_freq == 0:
+            self.success_rate = self.training_env.unwrapped.get_attr("success_rate")[0]
+            self.adjust_difficulty()
+        return True
+
+    def adjust_difficulty(self):
+        """Adjust the difficulty of the environment based on the agent's success rate."""
+        if self.success_rate > self.threshold_for_increase:
+            # Assuming your environment has methods 'increase_difficulty' and 'decrease_difficulty'
+            # Adjust these method names as per your actual environment implementation
+            self.training_env.env_method('increase_difficulty', indices=None)  # Apply to all envs
+        # elif self.success_rate < self.threshold_for_decrease:
+        #     self.training_env.env_method('decrease_difficulty', indices=None)  # Apply to all envs
+
+    def on_training_end(self):
+        """Optional: Do something at the end of training."""
+        print("Training ends. Final difficulty adjustments can be made here.")

@@ -4,12 +4,14 @@ from gymnasium.spaces import Box
 import numpy as np
 import random
 import math
+from collections import deque
 
 from rl_gripper.resources.classes.cube import Cube
 from rl_gripper.resources.classes.plane import Plane
 from rl_gripper.resources.classes.robot import Robot
 
 sim_length = 82
+curr_laps = 10
 
 
 class GripperEnv(gym.Env):
@@ -17,9 +19,8 @@ class GripperEnv(gym.Env):
     #            'cube_position' ['FIX', 'RANDOM']}
 
     def __init__(self, cube_position='FIX', render_mode='GUI'):
-        self.cube_position = cube_position
-        # ACTION SPACE
 
+        # ACTION SPACE
         self.action_space = Box(
             low=np.array([-1, -1, -1], dtype=np.float16),
             high=np.array([1, 1, 1], dtype=np.float16))
@@ -33,8 +34,7 @@ class GripperEnv(gym.Env):
             low=np.array([-1, -1, -1, -1, -1, -1], dtype=np.float16),
             high=np.array([1, 1, 1, 1, 1, 1], dtype=np.float16))
 
-        # self.state = [0, 0, 0, 0]   # [Yaw, Joint2, Joint3, Gripper]
-        self.sim_length = sim_length  # ALSO IN RESET() !!!
+        self.sim_length = sim_length
         self.prev_dist_to_goal = 100
         self.np_random, _ = gym.utils.seeding.np_random()
         self.terminated = False
@@ -42,6 +42,15 @@ class GripperEnv(gym.Env):
         self.COLLISION_FLAG = False
         self.GRASPING_FLAG = False
         self.dist_to_goal = 100
+
+        #CURRICULUM
+        self.cube_position = cube_position
+
+        self.minGripperHeight = 0.15
+        self.maxGripperHeight = 0.40
+        self.gripper_start_pos = [0.35, 0, 0.15]
+
+        self.last_results = deque(maxlen=10) #Results of the last 10 Episodes
 
         if render_mode == 'GUI':
             self.client = p.connect(p.GUI)
@@ -72,10 +81,9 @@ class GripperEnv(gym.Env):
         reward = self.calculate_reward_mlp(tcp_world)
 
         self.sim_length -= 1
-        # print(self.sim_length)
-        # if self.sim_length == 27:
-        #     test = 1
+
         if self.sim_length == 0:
+            self.last_results.append(0)
             self.terminated = True
 
         return obs, reward, self.terminated, False, dict()
@@ -86,7 +94,6 @@ class GripperEnv(gym.Env):
 
     def reset(self, seed=None, options=None):
         p.resetSimulation(self.client)
-        #p.setGravity(0, 0, -9.81)
 
         self.sim_length = sim_length
         self.terminated = False
@@ -95,17 +102,11 @@ class GripperEnv(gym.Env):
         self.GRASPING_FLAG = False
 
         self.plane = Plane(self.client)
-        self.robot = Robot(self.client)
+        self.robot = Robot(self.client, self.gripper_start_pos)
         self.cube = Cube(self.client, self.cube_position)
-        # self.robot.print_joint_info()
 
         # Observation to start
         obs = self.get_full_observation()
-
-        # goal_xyz = self.cube.get_pos()  # Position of Goal
-        # self.prev_dist_to_goal = math.sqrt(((tcp[0] - goal_xyz[0]) ** 2 +
-        #                                     (tcp[1] - goal_xyz[1]) ** 2 +
-        #                                     (tcp[2] - goal_xyz[2]) ** 2))
 
         return obs, dict()
 
@@ -141,6 +142,7 @@ class GripperEnv(gym.Env):
 
         if self.COLLISION_FLAG:
             reward -= 200
+            self.last_results.append(0)
             self.terminated = True
 
         # distance to goal (L2 Norm) NICHT OPTIMAL DA CUBE POS NOTWENDIG
@@ -165,6 +167,7 @@ class GripperEnv(gym.Env):
                 if self.cube.get_pos()[2] > 0.09:
                     reward += 200
                     self.terminated = True
+                    self.last_results.append(1)
 
         return reward
 
@@ -178,6 +181,8 @@ class GripperEnv(gym.Env):
         if self.COLLISION_FLAG:
             reward -= 200
             self.terminated = True
+            self.last_results.append(0)
+
 
         # distance to goal (L2 Norm) NICHT OPTIMAL DA CUBE POS NOTWENDIG
         goal_xyz = self.cube.get_pos()
@@ -200,7 +205,9 @@ class GripperEnv(gym.Env):
                 # Goal, über 9cm
                 if self.cube.get_pos()[2] > 0.09:
                     reward += 200
+                    self.last_results.append(1)
                     self.terminated = True
+
 
         return reward
 
@@ -213,6 +220,7 @@ class GripperEnv(gym.Env):
 
         if self.COLLISION_FLAG:
             reward -= 10000
+            self.last_results.append(0)
             self.terminated = True
 
         # distance to goal (L2 Norm) NICHT OPTIMAL DA CUBE POS NOTWENDIG
@@ -229,6 +237,7 @@ class GripperEnv(gym.Env):
             if self.cube.get_pos()[2] > 0.09:
                 reward += 10000
                 self.terminated = True
+                self.last_results.append(1)
 
         return reward
 
@@ -237,4 +246,15 @@ class GripperEnv(gym.Env):
         goal_world = self.cube.get_pos()
         obs = np.array([*tcp_world, *goal_world], dtype=np.float32)
         return obs
+
+    @property
+    def success_rate(self):
+        if not self.last_results:
+            return 0
+        return sum(self.last_results) / len(self.last_results)
+
+    def increase_difficulty(self):
+
+        newGripperHeight = np.clip(self.gripper_start_pos[2] + (self.maxGripperHeight - self.minGripperHeight) / curr_laps, self.minGripperHeight, self.maxGripperHeight)
+        self.gripper_start_pos = [0.35, 0, newGripperHeight]
 

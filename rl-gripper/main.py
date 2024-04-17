@@ -1,7 +1,7 @@
 import gymnasium as gym
 import os
 from rl_gripper.envs.CustomGripperEnv import GripperEnv
-from rl_gripper.resources.classes.customClasses import TensorboardCallback, CustomCNN, CustomCNN_attention, CustomCNN_big, CustomCNN_maxPooling
+from rl_gripper.resources.classes.customClasses import TensorboardCallback, CustomCNN, CustomCNN_attention, CustomCNN_big, CustomCNN_maxPooling, CurriculumCallback
 from stable_baselines3 import SAC, PPO
 from stable_baselines3.common.vec_env import DummyVecEnv, VecMonitor, VecEnv, VecNormalize, SubprocVecEnv
 from stable_baselines3.common.vec_env import VecFrameStack, VecTransposeImage
@@ -10,8 +10,12 @@ from stable_baselines3.common.callbacks import EvalCallback, CheckpointCallback
 import torch
 from stable_baselines3.her.her_replay_buffer import HerReplayBuffer
 
+#TODO
+#EndEffector auf Gripper/TCP umbauen
+#Curriculum verifizieren
 
-#tensorboard --logdir=D:\projects\rl-gripper\rl_gripper\training\logs\PPO_1
+
+#tensorboard --logdir=C:\Users\Dario\Desktop\rl-gripper\rl-gripper\rl_gripper\training\logs\coords_input
 #tensorboard --logdir=/home/dsuckfuell/rl-gripper/rl-gripper/rl_gripper/training/logs/coords_input
 
 
@@ -63,7 +67,10 @@ model = SAC("MlpPolicy", train_env,
             #policy_kwargs=policy_kwargs,
             tensorboard_log=log_path)
 
-model.learn(total_timesteps=1000000, callback=[eval_callback, checkpoint_callback], progress_bar=True)
+curriculum_callback = CurriculumCallback(model)
+tensorboard_callback = TensorboardCallback(model)
+
+model.learn(total_timesteps=1000000, callback=[eval_callback, checkpoint_callback, curriculum_callback, tensorboard_callback], progress_bar=True)
 model.save(save_path)
 del model
 del train_env
