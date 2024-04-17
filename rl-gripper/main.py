@@ -15,33 +15,33 @@ from stable_baselines3.her.her_replay_buffer import HerReplayBuffer
 #tensorboard --logdir=/home/dsuckfuell/rl-gripper/rl-gripper/rl_gripper/training/logs/coords_input
 
 
-### CURRICULUM 1 ###
+### BASE ###
 
 torch.cuda.empty_cache()
 log_path = os.path.join('rl_gripper', 'training', 'logs', 'coords_input')
-save_path = os.path.join('rl_gripper', 'training', 'saved_models', 'SAC_FR_RP_200k_2048')
+save_path = os.path.join('rl_gripper', 'training', 'saved_models', 'SAC_Vergleich_Batch')
 
 ### LOAD TRAINING ENVIRONMENT ###
-env_kwargs = {'render_mode': 'DIRECT', 'cube_position': 'RANDOM'}
+env_kwargs = {'render_mode': 'DIRECT', 'cube_position': 'FIX'}
 train_env = make_vec_env("Gripper-v0", n_envs=1, env_kwargs=env_kwargs)
 #train_env = VecTransposeImage(train_env)
-#train_env = VecNormalize(train_env, training=False, norm_obs=False, norm_reward=True, clip_obs=10.)
+train_env = VecNormalize(train_env, training=True, norm_obs=False, norm_reward=True, clip_obs=10.)
 train_env = VecMonitor(train_env)
 
 ### LOAD EVAL ENVIRONMENT ###
-env_kwargs = {'render_mode': 'DIRECT', 'cube_position': 'RANDOM'}
+env_kwargs = {'render_mode': 'DIRECT', 'cube_position': 'FIX'}
 eval_env = make_vec_env("Gripper-v0", n_envs=1, env_kwargs=env_kwargs)
 #eval_env = VecTransposeImage(eval_env)
-#eval_env = VecNormalize(eval_env, training=False, norm_obs=False, norm_reward=True, clip_obs=10.)
+eval_env = VecNormalize(eval_env, training=True, norm_obs=False, norm_reward=True, clip_obs=10.)
 eval_env = VecMonitor(eval_env)
 
 
 ### CALLBACKS ### (mitverantwortlich für FPS)
 eval_callback = EvalCallback(eval_env, best_model_save_path=os.path.join('rl_gripper', 'training', 'saved_models'),
                              eval_freq=5000,    #eval_freq = eval_freq * n_envs
-                             deterministic=True, render=False)
+                             deterministic=True, render=False, n_eval_episodes=10)
 checkpoint_callback = CheckpointCallback(save_freq=20000, save_path=os.path.join('rl_gripper', 'training', 'checkpoints'),
-                                         name_prefix='SAC_FR_RP_200k_2048')
+                                         name_prefix='SAC_Vergleich_Batch')
 
 ### TRAINING ###
 # policy_kwargs = dict(
@@ -53,8 +53,8 @@ checkpoint_callback = CheckpointCallback(save_freq=20000, save_path=os.path.join
 
 model = SAC("MlpPolicy", train_env,
             verbose=1,
-            buffer_size=200000,
-            batch_size=2048,
+            buffer_size=1000000,
+            batch_size=256,
             ent_coef='auto',
             learning_rate=0.0003,
             learning_starts=1000,
@@ -63,10 +63,7 @@ model = SAC("MlpPolicy", train_env,
             #policy_kwargs=policy_kwargs,
             tensorboard_log=log_path)
 
-# model = SAC.load(os.path.join('rl_gripper', 'training', 'saved_models', 'best_model'), env=train_env)
-
-
-model.learn(total_timesteps=6000000, callback=[eval_callback, checkpoint_callback], progress_bar=True)
+model.learn(total_timesteps=1000000, callback=[eval_callback, checkpoint_callback], progress_bar=True)
 model.save(save_path)
 del model
 del train_env

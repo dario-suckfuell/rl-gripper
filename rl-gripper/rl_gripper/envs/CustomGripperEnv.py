@@ -24,6 +24,7 @@ class GripperEnv(gym.Env):
             low=np.array([-1, -1, -1], dtype=np.float16),
             high=np.array([1, 1, 1], dtype=np.float16))
 
+
         # OBSERVATION SPACE (Greyscale Depth Image Input, Later also Gripper Width)
         #self.observation_space = Box(low=0, high=255, shape=(64, 64, 1), dtype=np.uint8)
 
@@ -67,6 +68,7 @@ class GripperEnv(gym.Env):
 
         ### REWARD ###
         tcp_world = self.robot.get_tcp_world()
+        #reward = self.calculate_reward_thesis()
         reward = self.calculate_reward_mlp(tcp_world)
 
         self.sim_length -= 1
@@ -202,7 +204,7 @@ class GripperEnv(gym.Env):
 
         return reward
 
-    def calculate_reward_thesis(self, depth, tcp, rgb_flat):
+    def calculate_reward_thesis(self):
         ### SHAPED REWARD THESIS ###
         reward = -200  # Time penalty
 

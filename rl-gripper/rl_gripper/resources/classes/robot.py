@@ -13,7 +13,7 @@ endEffectorIdx = 14
 ### CAMERA SETTINGS ###
 width, height = 64, 64
 aspect = width / height
-near, far = 0.0003, 0.3
+near, far = 0.0003, 0.3 #0.02, 2.0
 fov = 120
 
 
@@ -131,7 +131,7 @@ class Robot:
         p.addUserDebugLine(camera_pos, camera_pos + upvec, [1, 0, 0], 5, 0.1)
 
         view_matrix = p.computeViewMatrix(camera_pos, lookat_pos, upvec)
-        projection_matrix = p.computeProjectionMatrixFOV(fov, aspect, near, far)
+        projection_matrix = p.computeProjectionMatrixFOV(fov, aspect, near, far) #Abspeichern! ZEIT CHECKEN
 
         _, _, rgb_flat, depth, segmentation = p.getCameraImage(width, height, view_matrix, projection_matrix,
                                                                shadow=False,
@@ -188,7 +188,7 @@ class Robot:
                                     controlMode=p.POSITION_CONTROL,
                                     targetPosition=gripperWidth,
                                     maxVelocity=20,
-                                    force=300)
+                                    force=100)
 
 
 '''

@@ -42,7 +42,6 @@ class CustomCNN_attention(BaseFeaturesExtractor):
     def __init__(self, observation_space, features_dim):
         super(CustomCNN_attention, self).__init__(observation_space, features_dim)
 
-        # Existing CNN layers
         self.cnn = nn.Sequential(
             nn.Conv2d(observation_space.shape[0], 32, kernel_size=8, stride=4, padding=0),
             nn.ReLU(),
@@ -50,41 +49,33 @@ class CustomCNN_attention(BaseFeaturesExtractor):
             nn.ReLU(),
             nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=0),
             nn.ReLU(),
+            nn.Flatten(),
         )
 
-        # Attention layer
-        self.attention = nn.Sequential(
-            nn.Conv2d(64, 1, kernel_size=1),  # Produces the attention map
-            nn.Sigmoid(),  # Normalizes the attention scores
-        )
-
-        # Flatten the feature maps before passing to the linear layer
-        self.flatten = nn.Flatten()
-
-        # Compute the shape after flattening
+        # Dummy input to calculate flat features size
         with torch.no_grad():
-            n_flatten = self.flatten(self.cnn(torch.as_tensor(observation_space.sample()[None]).float())).shape[1]
+            n_flatten = self.cnn(
+                torch.as_tensor(observation_space.sample()[None]).float()
+            ).shape[1]
+
+        # Feature dimension for self-attention, reshaping is needed
+        self.feature_dim = n_flatten // 64  # assuming last conv outputs 64 channels
+        self.reshape = nn.Unflatten(1, (64, self.feature_dim))
+
+        # Adding the self-attention layer
+        self.self_attention = SelfAttention(feature_dim=self.feature_dim)
 
         self.linear = nn.Sequential(
             nn.Linear(n_flatten, features_dim),
             nn.ReLU()
         )
 
-    def forward(self, observation: torch.tensor) -> torch.Tensor:
-        # Extract features
-        feature_map = self.cnn(observation)
-
-        # Compute attention map
-        attention_map = self.attention(feature_map)
-
-        # Apply attention to the feature map
-        attended_features = feature_map * attention_map
-
-        # Flatten the attended features
-        flattened = self.flatten(attended_features)
-
-        # Pass through the linear layer
-        return self.linear(flattened)
+    def forward(self, observation: torch.Tensor) -> torch.Tensor:
+        x = self.cnn(observation)
+        x = self.reshape(x)
+        x = self.self_attention(x)
+        x = x.flatten(start_dim=1)  # Flatten back before feeding into linear layer
+        return self.linear(x)
 
 
 class CustomCNN_maxPooling(BaseFeaturesExtractor):
@@ -200,30 +191,18 @@ class TensorboardCallback(BaseCallback):
         return True
 
 
-class RewardStandardizationWrapper(gym.RewardWrapper):
-    '''
-    Reward Standardization over one Episode
-    '''
+class SelfAttention(nn.Module):
+    def __init__(self, feature_dim, num_heads=3):
+        super(SelfAttention, self).__init__()
+        self.num_heads = num_heads
+        self.attention = nn.MultiheadAttention(embed_dim=feature_dim, num_heads=num_heads)
 
-    def __init__(self, env):
-        super().__init__(env)
-        self.rewards = []
+    def forward(self, x):
+        # Permute batch and sequence dimensions:
+        x = x.permute(1, 0, 2)  # [batch_size, seq_len, features] -> [seq_len, batch_size, features]
+        # Self-attention
+        x, _ = self.attention(x, x, x)
+        # Permute back to the original order:
+        x = x.permute(1, 0, 2)  # [seq_len, batch_size, features] -> [batch_size, seq_len, features]
+        return x
 
-    def reset(self, **kwargs):
-        # Reset the environment and clear reward history at the start of each episode
-        self.rewards = []
-        return self.env.reset(**kwargs)
-
-    def reward(self, reward):
-        # Append the reward to the history for this episode
-        self.rewards.append(reward)
-
-        # Compute the mean and std of rewards for the current episode
-        mean_reward = np.mean(self.rewards)
-        std_reward = np.std(self.rewards) if np.std(self.rewards) > 0 else 1
-
-        # Standardize the reward, maintaining the sign
-        normalized_reward = abs(reward - mean_reward) / (std_reward + 1e-8)  # Normalize the magnitude of the reward
-        normalized_reward = normalized_reward if reward > 0 else -normalized_reward  # Re-apply the original sign
-
-        return normalized_reward
