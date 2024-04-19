@@ -9,7 +9,7 @@ import ntpath
 ### GRIPPER SETTINGS ###
 gripperIndices = [8, 9, 10, 11, 12, 13]
 maxJointVel = 8
-endEffectorIdx = 14
+endEffectorIdx = 15 #TCP
 
 ### CAMERA SETTINGS ###
 width, height = 64, 64
@@ -45,36 +45,6 @@ class Robot:
     def get_ids(self):
         return self.client, self.id
 
-    def apply_action(self, action):
-        # Calculating relative action
-        # ll = np.array([-6.283, -2.059, -3.927, 0.0000])
-        # up = np.array([6.283, 2.094, 0.191, 0.850])
-        ll = np.array([-np.pi / 4, -0.7, -1.3, 0.0000])
-        up = np.array([np.pi / 4, 0.7, 0.191, 0.850])
-        step_update = np.array([12.566 / 1000, 4.153 / 500, 4.118 / 500, 0.85 / 50]) * action
-        self.state += step_update
-        # print(self.state)
-        self.state = np.clip(self.state, ll, up)
-
-        # p.setJointMotorControl2(self.id, 0, controlMode=p.POSITION_CONTROL, targetPosition=0)
-        p.setJointMotorControl2(self.id, 1, controlMode=p.POSITION_CONTROL, maxVelocity=maxJointVel,
-                                targetPosition=self.state[0])
-        p.setJointMotorControl2(self.id, 2, controlMode=p.POSITION_CONTROL, maxVelocity=maxJointVel,
-                                targetPosition=self.state[1])
-        p.setJointMotorControl2(self.id, 3, controlMode=p.POSITION_CONTROL, maxVelocity=maxJointVel,
-                                targetPosition=self.state[2])
-        p.setJointMotorControl2(self.id, 4, controlMode=p.POSITION_CONTROL, maxVelocity=maxJointVel, targetPosition=0)
-        p.setJointMotorControl2(self.id, 5, controlMode=p.POSITION_CONTROL, maxVelocity=maxJointVel, targetPosition=0)
-        p.setJointMotorControl2(self.id, 6, controlMode=p.POSITION_CONTROL, maxVelocity=maxJointVel, targetPosition=0)
-        # p.setJointMotorControl2(self.id, 7, controlMode=p.POSITION_CONTROL, targetPosition=0)
-
-        for joint_index in gripperIndices:
-            p.setJointMotorControl2(self.id, joint_index,
-                                    controlMode=p.POSITION_CONTROL,
-                                    targetPosition=self.state[3],
-                                    maxVelocity=15,
-                                    force=100)
-
     def apply_action_xyz(self, action, dist_to_goal):
         ### APPLY POSITIONAL ACTION TO ACTUATORS - PIXEL TO RELATIVE POSITION ###
 
@@ -85,11 +55,11 @@ class Robot:
             self.close_gripper()
 
         ### POSITION ###
-        rot_matrix_cam = np.array(p.getMatrixFromQuaternion(p.getLinkState(self.id, 14)[1])).reshape(3, 3)
-        curr_cam_pos_world = p.getLinkState(self.id, 14)[0]  # 3x1
+        rot_matrix_endEff_to_world = np.array(p.getMatrixFromQuaternion(p.getLinkState(self.id, endEffectorIdx)[1])).reshape(3, 3)
+        curr_endEff_pos_world = p.getLinkState(self.id, endEffectorIdx)[4]  # 3x1
         action_pos_cam = np.array([action[0], action[1], action[2]]) * 0.1  # 3x1
-        action_pos_world = rot_matrix_cam @ action_pos_cam  # 3x1
-        next_cam_pos_world = curr_cam_pos_world + action_pos_world  # 3x1
+        action_pos_world = rot_matrix_endEff_to_world @ action_pos_cam  # 3x1
+        next_endEff_pos_world = curr_endEff_pos_world + action_pos_world  # 3x1
 
         ### ORIENTATION  EULER ###
         # rot_matrix_cam = np.array(p.getMatrixFromQuaternion(p.getLinkState(self.id, 14)[1])).reshape(3, 3)
@@ -104,7 +74,7 @@ class Robot:
         # rot_quat = np.array([0, 0, -math.sin(rot_winkel/2), math.cos(rot_winkel/2)])
         # next_cam_orn_world = self.multiply_quaternions(curr_cam_orn_world, rot_quat)
 
-        joint_angles = p.calculateInverseKinematics(self.id, endEffectorIdx, next_cam_pos_world, self.gripper_start_orn,
+        joint_angles = p.calculateInverseKinematics(self.id, endEffectorIdx, next_endEff_pos_world, self.gripper_start_orn,
                                                     lowerLimits=self.ll_joints, upperLimits=self.ul_joints)
 
         for i in range(6):
@@ -146,18 +116,7 @@ class Robot:
         return depth, rgb_flat
 
     def get_tcp_world(self):
-        # Get observation of Tool Center Point
-        coords_l = p.getLinkState(self.id, 9)[0]
-        coords_r = p.getLinkState(self.id, 12)[0]
-
-        tcp_world = ((coords_l[0] + coords_r[0]) / 2, (coords_l[1] + coords_r[1]) / 2,
-                     (coords_l[2] + coords_r[2]) / 2)  # TCP im World Frame
-        rot_matrix_cam = np.array(p.getMatrixFromQuaternion(p.getLinkState(self.id, 14)[1])).reshape(3, 3)
-        tcp_cam_correction = [0, 0, 0.025]
-        tcp_world_correction = rot_matrix_cam @ tcp_cam_correction
-        tcp = tcp_world + tcp_world_correction
-
-        # print(tcp)
+        tcp = p.getLinkState(self.id, 15)[0]
         p.addUserDebugLine(tcp, [tcp[0], tcp[1], tcp[2] - 0.005], [1, 0, 0], 10, 0.1)
         return tcp
 

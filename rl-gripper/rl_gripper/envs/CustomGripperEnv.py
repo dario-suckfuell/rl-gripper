@@ -46,9 +46,9 @@ class GripperEnv(gym.Env):
         #CURRICULUM
         self.cube_position = cube_position
 
-        self.minGripperHeight = 0.15
+        self.minGripperHeight = 0.35
         self.maxGripperHeight = 0.40
-        self.gripper_start_pos = [0.35, 0, 0.15]
+        self.gripper_start_pos = [0.2, 0.2, 0.2]
 
         self.last_results = deque(maxlen=10) #Results of the last 10 Episodes
 
