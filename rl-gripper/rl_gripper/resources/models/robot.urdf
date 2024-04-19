@@ -538,7 +538,7 @@
   <link name="camera_link">
     <visual>
       <geometry>
-	<box size="0.013 0.013 0.03"/>
+	<box size="0.013 0.013 0.02"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <material name="Camera">
@@ -554,15 +554,20 @@
   <joint name="camera_joint" type="fixed">
     <parent link="link6"/>
     <child link="camera_link"/>
-    <origin rpy="0 0 0" xyz="0 0 0.115"/>
+    <origin rpy="0 0 0" xyz="0 0 0.10"/>
     <axis xyz="0 0 1"/>
   </joint>
   <link name="tcp_link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="0.001"/>
+        <inertia ixx="0.0001" iyy="0.0001" izz="0.0001" ixy="0" ixz="0" iyz="0"/>
+    </inertial>
   </link>
   <joint name="tcp_joint" type="fixed">
     <parent link="xarm_gripper_base_link"/>
     <child link="tcp_link"/>
-    <origin rpy="0 0 0" xyz="0 0 0.15"/>
+    <origin rpy="0 0 0" xyz="0 0 0.16"/>
   </joint>
 
   <transmission name="drive_joint_trans">

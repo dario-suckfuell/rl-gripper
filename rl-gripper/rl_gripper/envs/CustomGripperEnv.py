@@ -13,12 +13,15 @@ from rl_gripper.resources.classes.robot import Robot
 sim_length = 82
 curr_laps = 10
 
+minWorkspaceArea = 0
+maxWorkspaceArea = 0.4
 
 class GripperEnv(gym.Env):
     # metadata = {'render_modes': ['GUI', 'DIRECT']
-    #            'cube_position' ['FIX', 'RANDOM']}
+    #            'cube_position': ['FIX', 'RANDOM']
+    #            'curriculum': [True, False]}
 
-    def __init__(self, cube_position='FIX', render_mode='GUI'):
+    def __init__(self, cube_position='FIX', render_mode='GUI', curriculum=False):
 
         # ACTION SPACE
         self.action_space = Box(
@@ -42,15 +45,12 @@ class GripperEnv(gym.Env):
         self.COLLISION_FLAG = False
         self.GRASPING_FLAG = False
         self.dist_to_goal = 100
-
-        #CURRICULUM
-        self.cube_position = cube_position
-
-        self.minGripperHeight = 0.35
-        self.maxGripperHeight = 0.40
-        self.gripper_start_pos = [0.2, 0.2, 0.2]
-
         self.last_results = deque(maxlen=10) #Results of the last 10 Episodes
+        self.gripper_start_pos = [0.35, 0.0, 0.3]
+        self.curriculum = curriculum
+        self.cube_position = cube_position
+        self.cube_start_pos = None
+
 
         if render_mode == 'GUI':
             self.client = p.connect(p.GUI)
@@ -101,9 +101,18 @@ class GripperEnv(gym.Env):
         self.COLLISION_FLAG = False
         self.GRASPING_FLAG = False
 
+        # CURRICULUM
+        if self.curriculum:
+            self.cube_start_pos = [0.4, 0, 0.02]
+        else:
+            if self.cube_position == 'FIX':
+                self.cube_start_pos = [0.4, 0, 0.02]
+            elif self.cube_position == 'RANDOM':
+                self.cube_start_pos = [random.uniform(0.2, 0.6), random.uniform(-0.2, 0.2), 0.02]
+
         self.plane = Plane(self.client)
         self.robot = Robot(self.client, self.gripper_start_pos)
-        self.cube = Cube(self.client, self.cube_position)
+        self.cube = Cube(self.client, self.cube_start_pos)
 
         # Observation to start
         obs = self.get_full_observation()
@@ -255,6 +264,12 @@ class GripperEnv(gym.Env):
 
     def increase_difficulty(self):
 
-        newGripperHeight = np.clip(self.gripper_start_pos[2] + (self.maxGripperHeight - self.minGripperHeight) / curr_laps, self.minGripperHeight, self.maxGripperHeight)
-        self.gripper_start_pos = [0.35, 0, newGripperHeight]
+        newWorkspaceArea = minWorkspaceArea + (maxWorkspaceArea - minWorkspaceArea)/curr_laps
+        self.cube_start_pos = [random.uniform(self.cube_start_pos[0] - newWorkspaceArea, self.cube_start_pos[0] + newWorkspaceArea),
+                               random.uniform(self.cube_start_pos[1] - newWorkspaceArea, self.cube_start_pos[1] + newWorkspaceArea),
+                               0.02]
+
+
+
+
 

@@ -11,29 +11,32 @@ import torch
 from stable_baselines3.her.her_replay_buffer import HerReplayBuffer
 
 #TODO
-#EndEffector auf Gripper/TCP umbauen
-#Curriculum verifizieren
-
+#CustomClasses auslagern
+#Curr vs noCurr vergleichen
 
 #tensorboard --logdir=C:\Users\Dario\Desktop\rl-gripper\rl-gripper\rl_gripper\training\logs\coords_input
 #tensorboard --logdir=/home/dsuckfuell/rl-gripper/rl-gripper/rl_gripper/training/logs/coords_input
 
 
-### BASE ###
+### NO CURR ###
 
 torch.cuda.empty_cache()
 log_path = os.path.join('rl_gripper', 'training', 'logs', 'coords_input')
-save_path = os.path.join('rl_gripper', 'training', 'saved_models', 'SAC_Vergleich_Batch')
+save_path = os.path.join('rl_gripper', 'training', 'saved_models', 'SAC_Vergleich_noCurr')
 
 ### LOAD TRAINING ENVIRONMENT ###
-env_kwargs = {'render_mode': 'DIRECT', 'cube_position': 'FIX'}
+env_kwargs = {'render_mode': 'DIRECT',
+              'cube_position': 'RANDOM',
+              'curriculum': False}
 train_env = make_vec_env("Gripper-v0", n_envs=1, env_kwargs=env_kwargs)
 #train_env = VecTransposeImage(train_env)
 train_env = VecNormalize(train_env, training=True, norm_obs=False, norm_reward=True, clip_obs=10.)
 train_env = VecMonitor(train_env)
 
 ### LOAD EVAL ENVIRONMENT ###
-env_kwargs = {'render_mode': 'DIRECT', 'cube_position': 'FIX'}
+env_kwargs = {'render_mode': 'DIRECT',
+              'cube_position': 'RANDOM',
+              'curriculum': False}
 eval_env = make_vec_env("Gripper-v0", n_envs=1, env_kwargs=env_kwargs)
 #eval_env = VecTransposeImage(eval_env)
 eval_env = VecNormalize(eval_env, training=True, norm_obs=False, norm_reward=True, clip_obs=10.)
@@ -45,7 +48,7 @@ eval_callback = EvalCallback(eval_env, best_model_save_path=os.path.join('rl_gri
                              eval_freq=5000,    #eval_freq = eval_freq * n_envs
                              deterministic=True, render=False, n_eval_episodes=10)
 checkpoint_callback = CheckpointCallback(save_freq=20000, save_path=os.path.join('rl_gripper', 'training', 'checkpoints'),
-                                         name_prefix='SAC_Vergleich_Batch')
+                                         name_prefix='SAC_Vergleich_noCurr')
 
 ### TRAINING ###
 # policy_kwargs = dict(
@@ -70,9 +73,74 @@ model = SAC("MlpPolicy", train_env,
 curriculum_callback = CurriculumCallback(model)
 tensorboard_callback = TensorboardCallback(model)
 
-model.learn(total_timesteps=1000000, callback=[eval_callback, checkpoint_callback, curriculum_callback, tensorboard_callback], progress_bar=True)
+model.learn(total_timesteps=5000000, callback=[eval_callback, checkpoint_callback, tensorboard_callback], progress_bar=True)
 model.save(save_path)
 del model
 del train_env
 del eval_env
+
+
+
+### CURR ###
+
+torch.cuda.empty_cache()
+log_path = os.path.join('rl_gripper', 'training', 'logs', 'coords_input')
+save_path = os.path.join('rl_gripper', 'training', 'saved_models', 'SAC_Vergleich_Curr')
+
+### LOAD TRAINING ENVIRONMENT ###
+env_kwargs = {'render_mode': 'DIRECT',
+              'cube_position': 'RANDOM',
+              'curriculum': True}
+train_env = make_vec_env("Gripper-v0", n_envs=1, env_kwargs=env_kwargs)
+#train_env = VecTransposeImage(train_env)
+train_env = VecNormalize(train_env, training=True, norm_obs=False, norm_reward=True, clip_obs=10.)
+train_env = VecMonitor(train_env)
+
+### LOAD EVAL ENVIRONMENT ###
+env_kwargs = {'render_mode': 'DIRECT',
+              'cube_position': 'RANDOM',
+              'curriculum': False}
+eval_env = make_vec_env("Gripper-v0", n_envs=1, env_kwargs=env_kwargs)
+#eval_env = VecTransposeImage(eval_env)
+eval_env = VecNormalize(eval_env, training=True, norm_obs=False, norm_reward=True, clip_obs=10.)
+eval_env = VecMonitor(eval_env)
+
+
+### CALLBACKS ### (mitverantwortlich für FPS)
+eval_callback = EvalCallback(eval_env, best_model_save_path=os.path.join('rl_gripper', 'training', 'saved_models'),
+                             eval_freq=5000,    #eval_freq = eval_freq * n_envs
+                             deterministic=True, render=False, n_eval_episodes=10)
+checkpoint_callback = CheckpointCallback(save_freq=20000, save_path=os.path.join('rl_gripper', 'training', 'checkpoints'),
+                                         name_prefix='SAC_Vergleich_Curr')
+
+### TRAINING ###
+# policy_kwargs = dict(
+#     features_extractor_class=CustomCNN,
+#     features_extractor_kwargs=dict(features_dim=512),
+#     #activation_fn=torch.nn.Tanh,
+#     #net_arch,
+# )
+
+model = SAC("MlpPolicy", train_env,
+            verbose=1,
+            buffer_size=1000000,
+            batch_size=256,
+            ent_coef='auto',
+            learning_rate=0.0003,
+            learning_starts=1000,
+            gamma=0.99,
+            device='cuda',
+            #policy_kwargs=policy_kwargs,
+            tensorboard_log=log_path)
+
+curriculum_callback = CurriculumCallback(model)
+tensorboard_callback = TensorboardCallback(model)
+
+model.learn(total_timesteps=5000000, callback=[eval_callback, checkpoint_callback, tensorboard_callback], progress_bar=True)
+model.save(save_path)
+del model
+del train_env
+del eval_env
+
+
 
