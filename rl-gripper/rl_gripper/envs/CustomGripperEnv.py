@@ -9,12 +9,12 @@ from collections import deque
 from rl_gripper.resources.classes.cube import Cube
 from rl_gripper.resources.classes.plane import Plane
 from rl_gripper.resources.classes.robot import Robot
+from rl_gripper.resources.classes.workspace import Workspace
 
 sim_length = 82
 curr_laps = 10
 
-minWorkspaceArea = 0
-maxWorkspaceArea = 0.4
+workspaceArea = 0.4
 
 class GripperEnv(gym.Env):
     # metadata = {'render_modes': ['GUI', 'DIRECT']
@@ -47,10 +47,10 @@ class GripperEnv(gym.Env):
         self.dist_to_goal = 100
         self.last_results = deque(maxlen=10) #Results of the last 10 Episodes
         self.gripper_start_pos = [0.35, 0.0, 0.3]
-        self.curriculum = curriculum
-        self.cube_position = cube_position
-        self.cube_start_pos = None
 
+        self.curriculum = curriculum
+        self.workspace = Workspace()
+        self.define_workspace(cube_position)
 
         if render_mode == 'GUI':
             self.client = p.connect(p.GUI)
@@ -101,18 +101,9 @@ class GripperEnv(gym.Env):
         self.COLLISION_FLAG = False
         self.GRASPING_FLAG = False
 
-        # CURRICULUM
-        if self.curriculum:
-            self.cube_start_pos = [0.4, 0, 0.02]
-        else:
-            if self.cube_position == 'FIX':
-                self.cube_start_pos = [0.4, 0, 0.02]
-            elif self.cube_position == 'RANDOM':
-                self.cube_start_pos = [random.uniform(0.2, 0.6), random.uniform(-0.2, 0.2), 0.02]
-
         self.plane = Plane(self.client)
         self.robot = Robot(self.client, self.gripper_start_pos)
-        self.cube = Cube(self.client, self.cube_start_pos)
+        self.cube = Cube(self.client, self.workspace)
 
         # Observation to start
         obs = self.get_full_observation()
@@ -263,13 +254,22 @@ class GripperEnv(gym.Env):
         return sum(self.last_results) / len(self.last_results)
 
     def increase_difficulty(self):
+        self.workspace.xMin = np.clip(self.workspace.xMin - workspaceArea / 2 / curr_laps, 0.2, 0.6)
+        self.workspace.xMax = np.clip(self.workspace.xMax + workspaceArea / 2 / curr_laps, 0.2, 0.6)
+        self.workspace.yMin = np.clip(self.workspace.yMin - workspaceArea / 2 / curr_laps, -0.2, 0.2)
+        self.workspace.yMax = np.clip(self.workspace.yMax + workspaceArea / 2 / curr_laps, -0.2, 0.2)
 
-        newWorkspaceArea = minWorkspaceArea + (maxWorkspaceArea - minWorkspaceArea)/curr_laps
-        self.cube_start_pos = [random.uniform(self.cube_start_pos[0] - newWorkspaceArea, self.cube_start_pos[0] + newWorkspaceArea),
-                               random.uniform(self.cube_start_pos[1] - newWorkspaceArea, self.cube_start_pos[1] + newWorkspaceArea),
-                               0.02]
-
-
+    def define_workspace(self, cube_position):
+        if cube_position == 'FIX' or self.curriculum:
+            self.workspace.xMin = 0.4
+            self.workspace.xMax = 0.4
+            self.workspace.yMin = 0.0
+            self.workspace.yMax = 0.0
+        elif cube_position == 'RANDOM':
+            self.workspace.xMin = 0.4 - workspaceArea/2
+            self.workspace.xMax = 0.4 + workspaceArea/2
+            self.workspace.yMin = 0.0 - workspaceArea/2
+            self.workspace.yMax = 0.0 + workspaceArea/2
 
 
 
