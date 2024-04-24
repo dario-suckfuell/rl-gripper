@@ -6,10 +6,10 @@
   </material>
 	<link name="base_cube_link">
 	    <contact>
-	      <lateral_friction value="0.7"/>
-	      <rolling_friction value="0.01"/>
-	      <contact_cfm value="0.001"/>
-	      <contact_erp value="0.7"/>
+	      <lateral_friction value="0.8"/>
+	      <rolling_friction value="0.001"/>
+	      <contact_cfm value="0.0001"/>
+	      <contact_erp value="0.8"/>
 	    </contact>
 	  <inertial>
 		<origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>

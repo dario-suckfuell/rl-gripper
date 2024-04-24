@@ -12,7 +12,8 @@ import torch
 from stable_baselines3.her.her_replay_buffer import HerReplayBuffer
 
 #TODO
-#Curr vs noCurr vergleichen
+#Gripper through Action
+
 
 #tensorboard --logdir=C:\Users\Dario\Desktop\rl-gripper\rl-gripper\rl_gripper\training\logs\coords_input
 #tensorboard --logdir=/home/dsuckfuell/rl-gripper/rl-gripper/rl_gripper/training/logs/coords_input
@@ -22,7 +23,7 @@ from stable_baselines3.her.her_replay_buffer import HerReplayBuffer
 
 torch.cuda.empty_cache()
 log_path = os.path.join('rl_gripper', 'training', 'logs', 'coords_input')
-save_path = os.path.join('rl_gripper', 'training', 'saved_models', 'SAC_Vergleich_Curr')
+save_path = os.path.join('rl_gripper', 'training', 'saved_models', 'SAC_Test_norm_obs')
 
 ### LOAD TRAINING ENVIRONMENT ###
 env_kwargs = {'render_mode': 'DIRECT',
@@ -65,11 +66,11 @@ model = SAC("MlpPolicy", train_env,
 eval_callback = EvalCallback(eval_env, best_model_save_path=os.path.join('rl_gripper', 'training', 'saved_models'),
                                        eval_freq=5000,    #eval_freq = eval_freq * n_envs
                                        deterministic=True, render=False, n_eval_episodes=10)
-checkpoint_callback = CheckpointCallback(save_freq=20000, save_path=os.path.join('rl_gripper', 'training', 'checkpoints'), name_prefix='SAC_Vergleich_Curr')
+checkpoint_callback = CheckpointCallback(save_freq=20000, save_path=os.path.join('rl_gripper', 'training', 'checkpoints'), name_prefix='SAC_Test_norm_obs')
 curriculum_callback = CurriculumCallback(model)
 tensorboard_callback = TensorboardCallback(model)
 
-model.learn(total_timesteps=5000000, callback=[eval_callback, checkpoint_callback, tensorboard_callback, curriculum_callback], progress_bar=True)
+model.learn(total_timesteps=4000000, callback=[eval_callback, checkpoint_callback, tensorboard_callback, curriculum_callback], progress_bar=True)
 model.save(save_path)
 
 del model

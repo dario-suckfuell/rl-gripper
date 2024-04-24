@@ -21,7 +21,10 @@ class TensorboardCallback(BaseCallback):
         self.logger.record('custom/success_rate', success_rate)
 
         workspace = self.training_env.unwrapped.get_attr("workspace")[0]
-        self.logger.record('custom/workspace', workspace.xMax - workspace.xMin)
+        self.logger.record('custom/workspace_area', workspace.xMax - workspace.xMin)
+
+        gripper_start_pos = self.training_env.unwrapped.get_attr("gripper_start_pos")[0]
+        self.logger.record('custom/gripper_start_height', gripper_start_pos[2])
 
         # if 'approx_kl' in self.locals:
         #     approx_kl = self.locals['approx_kl']
@@ -36,7 +39,6 @@ class CurriculumCallback(BaseCallback):
         self.model = model  # Store the model instance
         self.eval_freq = 1000  # Evaluate every 1000 steps
         self.threshold_for_increase = 0.8
-        self.threshold_for_decrease = 0.3
         self.success_rate = 0
         self.n_steps = 0
 
@@ -54,6 +56,3 @@ class CurriculumCallback(BaseCallback):
         if self.success_rate > self.threshold_for_increase:
             self.training_env.env_method('increase_difficulty', indices=None)  # Apply to all envs
 
-    def on_training_end(self):
-        """Optional: Do something at the end of training."""
-        print("Training ends. Final difficulty adjustments can be made here.")

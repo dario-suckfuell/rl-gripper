@@ -4,15 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="070c7250-1589-45e7-98dc-ac98a3a5dfdc" name="Changes" comment="curriculum for workspace">
-      <change afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/customFeaturesExtractor.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/workspace.py" afterDir="false" />
+    <list default="true" id="070c7250-1589-45e7-98dc-ac98a3a5dfdc" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/rl-gripper/evaluation.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/evaluation.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/rl-gripper/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/envs/CustomGripperEnv.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/envs/CustomGripperEnv.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/cube.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/cube.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/customClasses.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/customCallbacks.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/customCallbacks.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/customCallbacks.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/robot.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/robot.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/workspace.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/workspace.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/cube.urdf" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/cube.urdf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/plane.urdf" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/plane.urdf" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -67,7 +68,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "coordinate-based",
-    "last_opened_file_path": "/home/dsuckfuell/rl-gripper/rl-gripper/rl_gripper/resources/classes",
+    "last_opened_file_path": "/home/dsuckfuell/rl-gripper",
     "settings.editor.selected.configurable": "preferences.pluginManager"
   }
 }]]></component>
@@ -145,8 +146,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.manualControl" />
         <item itemvalue="Python.evaluation" />
+        <item itemvalue="Python.manualControl" />
       </list>
     </recent_temporary>
   </component>

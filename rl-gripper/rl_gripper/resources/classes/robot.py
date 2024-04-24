@@ -150,7 +150,7 @@ class Robot:
                                     controlMode=p.POSITION_CONTROL,
                                     targetPosition=gripperWidth,
                                     maxVelocity=20,
-                                    force=100)
+                                    force=200)
 
 
 '''

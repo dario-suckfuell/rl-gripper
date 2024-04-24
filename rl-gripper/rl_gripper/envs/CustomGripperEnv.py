@@ -12,9 +12,10 @@ from rl_gripper.resources.classes.robot import Robot
 from rl_gripper.resources.classes.workspace import Workspace
 
 sim_length = 82
-curr_laps = 10
+curr_laps = 10 #Kleine Schritte/Viele Laps schauen vielversprechend aus!
 
-workspaceArea = 0.4
+min_gripper_height = 0.15
+max_gripper_height = 0.25
 
 class GripperEnv(gym.Env):
     # metadata = {'render_modes': ['GUI', 'DIRECT']
@@ -38,7 +39,6 @@ class GripperEnv(gym.Env):
             high=np.array([1, 1, 1, 1, 1, 1], dtype=np.float16))
 
         self.sim_length = sim_length
-        self.prev_dist_to_goal = 100
         self.np_random, _ = gym.utils.seeding.np_random()
         self.terminated = False
         self.truncated = False
@@ -46,17 +46,15 @@ class GripperEnv(gym.Env):
         self.GRASPING_FLAG = False
         self.dist_to_goal = 100
         self.last_results = deque(maxlen=10) #Results of the last 10 Episodes
-        self.gripper_start_pos = [0.35, 0.0, 0.3]
-
-        self.curriculum = curriculum
-        self.workspace = Workspace()
-        self.define_workspace(cube_position)
-
-        if render_mode == 'GUI':
-            self.client = p.connect(p.GUI)
+        if curriculum:
+            self.gripper_start_pos = [0.4, 0.0, min_gripper_height]
         else:
-            self.client = p.connect(p.DIRECT)
+            self.gripper_start_pos = [0.4, 0.0, max_gripper_height]
 
+        self.workspace = Workspace()
+        self.workspace.define_workspace(cube_position, curriculum)
+
+        self.client = p.connect(p.GUI if render_mode == 'GUI' else p.DIRECT)
         p.setGravity(0, 0, -9.81)
         p.setTimeStep(1/240, self.client)
 
@@ -67,7 +65,6 @@ class GripperEnv(gym.Env):
         # self.reset()
 
     def step(self, action):
-        # print("IN STEP FUNCTION:", action)
         ### ACTION ###
         self.robot.apply_action_xyz(action, self.dist_to_goal)
         p.stepSimulation()
@@ -77,8 +74,7 @@ class GripperEnv(gym.Env):
 
         ### REWARD ###
         tcp_world = self.robot.get_tcp_world()
-        #reward = self.calculate_reward_thesis()
-        reward = self.calculate_reward_mlp(tcp_world)
+        reward = self.calculate_reward_simple(tcp_world)
 
         self.sim_length -= 1
 
@@ -133,9 +129,9 @@ class GripperEnv(gym.Env):
         else:
             self.GRASPING_FLAG = False
 
-    def calculate_reward(self, depth, tcp, rgb_flat):
+    def calculate_reward_simple(self, tcp):
         ### SHAPED REWARD PERSONAL ###
-        reward = -3  # Time penalty
+        reward = -1  # Time penalty
 
         self.check_for_grasping()
         self.check_for_collisions()
@@ -151,23 +147,12 @@ class GripperEnv(gym.Env):
                                        (tcp[1] - goal_xyz[1]) ** 2 +
                                        (tcp[2] - goal_xyz[2]) ** 2))
 
-        # reward -= 10 * self.dist_to_goal
+        reward -= 10 * self.dist_to_goal
 
         if self.dist_to_goal < 0.04:
-            reward += 1
-            # print("CUBE Z:", self.cube.get_pos()[2])
-            # print("GRASPING!")
-            if self.GRASPING_FLAG:
-                reward += 1
-                # over starting high of 2cm
-                if self.cube.get_pos()[2] > 0.02:
-                    reward += (self.cube.get_pos()[2] - 0.02) * 10
-
-                # Goal, über 9cm
-                if self.cube.get_pos()[2] > 0.09:
-                    reward += 200
-                    self.terminated = True
-                    self.last_results.append(1)
+            reward += 200
+            self.last_results.append(1)
+            self.terminated = True
 
         return reward
 
@@ -254,22 +239,14 @@ class GripperEnv(gym.Env):
         return sum(self.last_results) / len(self.last_results)
 
     def increase_difficulty(self):
-        self.workspace.xMin = np.clip(self.workspace.xMin - workspaceArea / 2 / curr_laps, 0.2, 0.6)
-        self.workspace.xMax = np.clip(self.workspace.xMax + workspaceArea / 2 / curr_laps, 0.2, 0.6)
-        self.workspace.yMin = np.clip(self.workspace.yMin - workspaceArea / 2 / curr_laps, -0.2, 0.2)
-        self.workspace.yMax = np.clip(self.workspace.yMax + workspaceArea / 2 / curr_laps, -0.2, 0.2)
+        self.workspace.xMin = np.maximum(self.workspace.xMin - self.workspace.area / 2 / curr_laps, 0.4 - self.workspace.area/2)
+        self.workspace.xMax = np.minimum(self.workspace.xMax + self.workspace.area / 2 / curr_laps, 0.4 + self.workspace.area/2)
+        self.workspace.yMin = np.maximum(self.workspace.yMin - self.workspace.area / 2 / curr_laps, 0.0 - self.workspace.area/2)
+        self.workspace.yMax = np.minimum(self.workspace.yMax + self.workspace.area / 2 / curr_laps, 0.0 + self.workspace.area/2)
 
-    def define_workspace(self, cube_position):
-        if cube_position == 'FIX' or self.curriculum:
-            self.workspace.xMin = 0.4
-            self.workspace.xMax = 0.4
-            self.workspace.yMin = 0.0
-            self.workspace.yMax = 0.0
-        elif cube_position == 'RANDOM':
-            self.workspace.xMin = 0.4 - workspaceArea/2
-            self.workspace.xMax = 0.4 + workspaceArea/2
-            self.workspace.yMin = 0.0 - workspaceArea/2
-            self.workspace.yMax = 0.0 + workspaceArea/2
+        newGripperHeight = np.minimum(self.gripper_start_pos[2] + (max_gripper_height - min_gripper_height)/curr_laps, max_gripper_height)
+        self.gripper_start_pos = [self.gripper_start_pos[0], self.gripper_start_pos[1], newGripperHeight]
+
 
 
 
