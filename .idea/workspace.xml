@@ -4,16 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="070c7250-1589-45e7-98dc-ac98a3a5dfdc" name="Changes" comment="">
+    <list default="true" id="070c7250-1589-45e7-98dc-ac98a3a5dfdc" name="Changes" comment="coordinate based working with curriculum (workspace_area, gripper_start_height)">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rl-gripper/evaluation.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/evaluation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rl-gripper/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/envs/CustomGripperEnv.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/envs/CustomGripperEnv.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/customCallbacks.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/customCallbacks.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/robot.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/robot.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/workspace.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/workspace.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/cube.urdf" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/cube.urdf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/plane.urdf" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/plane.urdf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/customFeaturesExtractor.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/customFeaturesExtractor.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -191,7 +185,15 @@
       <option name="project" value="LOCAL" />
       <updated>1713537072369</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="coordinate based working with curriculum">
+      <option name="closed" value="true" />
+      <created>1713954794851</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1713954794851</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -221,6 +223,9 @@
     <MESSAGE value="update 17.04" />
     <MESSAGE value="tcp as end effector" />
     <MESSAGE value="curriculum for workspace" />
-    <option name="LAST_COMMIT_MESSAGE" value="curriculum for workspace" />
+    <MESSAGE value="coordinate based working with curriculum (workspace_area, gripper_start_height)" />
+    <MESSAGE value="coordinate based working with curriculum (workspace, gripper_start_height)" />
+    <MESSAGE value="coordinate based working with curriculum (workspace_area, gripper_start_height)" />
+    <option name="LAST_COMMIT_MESSAGE" value="coordinate based working with curriculum (workspace_area, gripper_start_height)" />
   </component>
 </project>

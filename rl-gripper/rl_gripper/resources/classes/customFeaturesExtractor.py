@@ -1,6 +1,7 @@
 import torch
 import random
 import torch.nn as nn
+import matplotlib.pyplot as plt
 from torchvision.models import resnet, resnet18
 from gymnasium import spaces
 from stable_baselines3.common.torch_layers import BaseFeaturesExtractor
@@ -63,7 +64,7 @@ class CustomCNN_attention(BaseFeaturesExtractor):
         self.reshape = nn.Unflatten(1, (64, self.feature_dim))
 
         # Adding the self-attention layer
-        self.self_attention = SelfAttention(feature_dim=self.feature_dim)
+        self.self_attention = SelfAttention(feature_dim=self.feature_dim, num_heads=3)
 
         self.linear = nn.Sequential(
             nn.Linear(n_flatten, features_dim),
@@ -152,8 +153,41 @@ class SelfAttention(nn.Module):
     def forward(self, x):
         # Permute batch and sequence dimensions:
         x = x.permute(1, 0, 2)  # [batch_size, seq_len, features] -> [seq_len, batch_size, features]
+
         # Self-attention
-        x, _ = self.attention(x, x, x)
+        attn_output, attn_output_weights = self.attention(x, x, x)
+        #visualize_attention_weights(attn_output_weights)
+
         # Permute back to the original order:
-        x = x.permute(1, 0, 2)  # [seq_len, batch_size, features] -> [batch_size, seq_len, features]
-        return x
+        attn_output = attn_output.permute(1, 0, 2)  # [seq_len, batch_size, features] -> [batch_size, seq_len, features]
+        return attn_output
+
+
+def visualize_attention_weights(attn_weights, seq_labels=None):
+    """
+    Visualizes the mean of the attention weights across all heads.
+
+    Args:
+    attn_weights: The attention weights tensor of shape [num_heads, seq_len, seq_len].
+    seq_labels: Optional labels for the sequence positions (list of strings).
+    """
+    # Calculate the mean of the attention weights across all heads
+    attn_weights_mean = torch.mean(attn_weights, dim=0)  # Shape: [seq_len, seq_len]
+
+    # Plotting
+    fig, ax = plt.subplots(figsize=(8, 8))
+    cax = ax.matshow(attn_weights_mean.detach().numpy(), cmap='bone')
+    fig.colorbar(cax)
+
+    if seq_labels:
+        # Set up axes with labels, ensuring correct alignment
+        ax.set_xticks(range(len(seq_labels)))
+        ax.set_yticks(range(len(seq_labels)))
+        ax.set_xticklabels([''] + seq_labels, rotation=90)
+        ax.set_yticklabels([''] + seq_labels)
+
+    # Show plot
+    plt.xlabel("Keys")
+    plt.ylabel("Queries")
+    plt.title("Mean Attention Map Across All Heads")
+    plt.show()

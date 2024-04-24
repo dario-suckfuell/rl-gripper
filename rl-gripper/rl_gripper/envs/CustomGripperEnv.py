@@ -74,7 +74,7 @@ class GripperEnv(gym.Env):
 
         ### REWARD ###
         tcp_world = self.robot.get_tcp_world()
-        reward = self.calculate_reward_simple(tcp_world)
+        reward = self.calculate_reward_mlp(tcp_world)
 
         self.sim_length -= 1
 
