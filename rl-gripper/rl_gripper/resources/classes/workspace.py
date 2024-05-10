@@ -1,6 +1,12 @@
+
+
+min_workspace_area = 0.0
+max_workspace_area = 0.2 #Maximale Seitenlänge der rechteckigen Arbeitsfläche (Mittelpunkt bei (0.4, 0.0))
+
 class Workspace:
     def __init__(self):
-        self.area = 0.3 #Seitenlänge der rechteckigen Arbeitsfläche (Mittelpunkt bei (0.4, 0.0))
+        self.min_workspace_area = min_workspace_area
+        self.max_workspace_area = max_workspace_area
         self.xMin = None
         self.xMax = None
         self.yMin = None
@@ -8,13 +14,13 @@ class Workspace:
 
     def define_workspace(self, cube_position, curriculum):
         if cube_position == 'FIX' or curriculum:
-            self.xMin = 0.4
-            self.xMax = 0.4
-            self.yMin = 0.0
-            self.yMax = 0.0
+            self.xMin = 0.4 - self.min_workspace_area/2
+            self.xMax = 0.4 + self.min_workspace_area/2
+            self.yMin = 0.0 - self.min_workspace_area/2
+            self.yMax = 0.0 + self.min_workspace_area/2
         elif cube_position == 'RANDOM':
-            self.xMin = 0.4 - self.area/2
-            self.xMax = 0.4 + self.area/2
-            self.yMin = 0.0 - self.area/2
-            self.yMax = 0.0 + self.area/2
+            self.xMin = 0.4 - self.max_workspace_area/2
+            self.xMax = 0.4 + self.max_workspace_area/2
+            self.yMin = 0.0 - self.max_workspace_area/2
+            self.yMax = 0.0 + self.max_workspace_area/2
 

@@ -19,14 +19,14 @@
 	  <visual>
 		<origin rpy="0 0 0" xyz="0 0 0"/>
 		<geometry>
-		  <box size="0.035 0.035 0.035"/> <!-- Adjust the size as needed -->
+		  <box size="0.04 0.04 0.04"/> <!-- Adjust the size as needed -->
 		</geometry>
       <material name="Green"/>
 	  </visual>
 	  <collision>
 		<origin rpy="0 0 0" xyz="0 0 0"/>
 		<geometry>
-		  <box size="0.035 0.035 0.035"/> <!-- Adjust the size as needed -->
+		  <box size="0.04 0.04 0.04"/> <!-- Adjust the size as needed -->
 		</geometry>
 	  </collision>
 	</link>

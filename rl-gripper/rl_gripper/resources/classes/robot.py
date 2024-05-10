@@ -5,6 +5,7 @@ import math
 import random
 import os
 import ntpath
+import time
 
 ### GRIPPER SETTINGS ###
 gripperIndices = [8, 9, 10, 11, 12, 13]
@@ -12,9 +13,10 @@ maxJointVel = 8
 endEffectorIdx = 15 #TCP
 
 ### CAMERA SETTINGS ###
-width, height = 64, 64
+width, height = 48, 48
 aspect = width / height
-near, far = 0.0003, 0.3 #0.02, 2.0
+near, far = 0.003, 1.0
+#near, far = 0.02, 2.0 #thesis
 fov = 120
 
 
@@ -91,6 +93,7 @@ class Robot:
         #                             force=100)
 
     def get_camera_data(self):
+        #print("in get_camera_data")
         # Get camera output
         camera_pos = p.getLinkState(self.id, 14)[0]
         rot_matrix = np.array(p.getMatrixFromQuaternion(p.getLinkState(self.id, 14)[1])).reshape(3, 3)
@@ -99,21 +102,35 @@ class Robot:
         upvec = rot_matrix @ np.array([1, 0, 0])
         rightvec = rot_matrix @ np.array([0, 1, 0])
 
-        p.addUserDebugLine(camera_pos, camera_pos + rightvec, [0, 1, 0], 5, 0.1)
-        p.addUserDebugLine(camera_pos, lookat_pos, [0, 0, 1], 5, 0.1)
-        p.addUserDebugLine(camera_pos, camera_pos + upvec, [1, 0, 0], 5, 0.1)
+        # p.addUserDebugLine(camera_pos, camera_pos + rightvec, [0, 1, 0], 5, 0.1)
+        # p.addUserDebugLine(camera_pos, lookat_pos, [0, 0, 1], 5, 0.1)
+        # p.addUserDebugLine(camera_pos, camera_pos + upvec, [1, 0, 0], 5, 0.1)
 
         view_matrix = p.computeViewMatrix(camera_pos, lookat_pos, upvec)
+
         projection_matrix = p.computeProjectionMatrixFOV(fov, aspect, near, far) #Abspeichern! ZEIT CHECKEN
 
-        _, _, rgb_flat, depth, segmentation = p.getCameraImage(width, height, view_matrix, projection_matrix,
+        results = p.getCameraImage(width, height, view_matrix, projection_matrix,
                                                                shadow=False,
                                                                renderer=p.ER_BULLET_HARDWARE_OPENGL)
+
         # rgb_flat = np.array(rgb_flat).reshape(16384, 1).ravel()
         # rgb_flat = np.array(rgb_flat.reshape(16384, 1)).ravel()
+
+        # Extract rgb
+        rgb = np.asarray(results[2], dtype=np.uint8)
+        rgb = np.reshape(rgb, (width, height, 4))[:, :, :3]
+
+        # Extract depth image
+        depth_buffer = np.asarray(results[3], np.float32).reshape(height, width)
+        depth = 1.0 * far * near / (far - (far - near) * depth_buffer) #Linearisierung
+
         depth = (np.array(depth) * 255).reshape(width, height, 1).astype(np.uint8)
 
-        return depth, rgb_flat
+        # Extract segmentation mask
+        mask = results[4]
+
+        return rgb, depth, mask
 
     def get_tcp_world(self):
         tcp = p.getLinkState(self.id, 15)[0]
@@ -129,7 +146,8 @@ class Robot:
             joint_info.append([id, name, type, pos, vel, ll, up, jr])
             print('ID: {}\nName: {}\nType: {}\nLower Limit: {}\nUpper Limit: {}\n'.format(id, name, type, ll, up))
 
-    def multiply_quaternions(self, q1, q2):
+    @staticmethod
+    def multiply_quaternions(q1, q2):
         x1, y1, z1, w1 = q1
         x2, y2, z2, w2 = q2
 
@@ -138,7 +156,7 @@ class Robot:
         y = w1 * y2 - x1 * z2 + y1 * w2 + z1 * x2
         z = w1 * z2 + x1 * y2 - y1 * x2 + z1 * w2
 
-        return (x, y, z, w)
+        return x, y, z, w
 
     def close_gripper(self):
 

@@ -18,11 +18,12 @@ save_path = os.path.join('rl_gripper', 'training', 'saved_models', 'PPO_Model_1_
 ### LOAD ENVIRONMENT ###
 ### LOAD TRAINING ENVIRONMENT ###
 
-env = gym.make("Gripper-v0", cube_position='RANDOM', curriculum=False)
+env = gym.make("Gripper-v0", cube_position='FIX', curriculum=True)
 
 x_fader = p.addUserDebugParameter("X", -1, 1, 0)
 y_fader = p.addUserDebugParameter("Y", -1, 1, 0)
 z_fader = p.addUserDebugParameter("Z", -1, 1, 0)
+yaw_fader = p.addUserDebugParameter("Yaw", -1, 1, 0)
 Gw_fader = p.addUserDebugParameter("Gw", -1, 1, 0)
 
 ### MANUAL CONTROL ###
@@ -37,9 +38,10 @@ while True:
         x = p.readUserDebugParameter(x_fader)
         y = p.readUserDebugParameter(y_fader)
         z = p.readUserDebugParameter(z_fader)
+        yaw = p.readUserDebugParameter(yaw_fader)
         Gw = p.readUserDebugParameter(Gw_fader)
 
-        action = np.array([x, y, z, Gw])
+        action = np.array([x, y, z, yaw, Gw])
 
         obs, reward, terminated, truncated, info = env.step(action)
         print(reward)

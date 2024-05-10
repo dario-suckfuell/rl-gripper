@@ -39,46 +39,6 @@ class CustomCNN(BaseFeaturesExtractor):
         return self.linear(self.cnn(observation))
 
 
-class CustomCNN_attention(BaseFeaturesExtractor):
-    def __init__(self, observation_space, features_dim):
-        super(CustomCNN_attention, self).__init__(observation_space, features_dim)
-
-        self.cnn = nn.Sequential(
-            nn.Conv2d(observation_space.shape[0], 32, kernel_size=8, stride=4, padding=0),
-            nn.ReLU(),
-            nn.Conv2d(32, 64, kernel_size=4, stride=2, padding=0),
-            nn.ReLU(),
-            nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=0),
-            nn.ReLU(),
-            nn.Flatten(),
-        )
-
-        # Dummy input to calculate flat features size
-        with torch.no_grad():
-            n_flatten = self.cnn(
-                torch.as_tensor(observation_space.sample()[None]).float()
-            ).shape[1]
-
-        # Feature dimension for self-attention, reshaping is needed
-        self.feature_dim = n_flatten // 64  # assuming last conv outputs 64 channels
-        self.reshape = nn.Unflatten(1, (64, self.feature_dim))
-
-        # Adding the self-attention layer
-        self.self_attention = SelfAttention(feature_dim=self.feature_dim, num_heads=3)
-
-        self.linear = nn.Sequential(
-            nn.Linear(n_flatten, features_dim),
-            nn.ReLU()
-        )
-
-    def forward(self, observation: torch.Tensor) -> torch.Tensor:
-        x = self.cnn(observation)
-        x = self.reshape(x)
-        x = self.self_attention(x)
-        x = x.flatten(start_dim=1)  # Flatten back before feeding into linear layer
-        return self.linear(x)
-
-
 class CustomCNN_maxPooling(BaseFeaturesExtractor):
     # Custom Feature Extractor: Custom CNN
     def __init__(self, observation_space, features_dim):
@@ -144,8 +104,48 @@ class CustomResNetFeatureExtractor(BaseFeaturesExtractor):
         return self.resnet(observations)
 
 
+class CustomCNN_attention(BaseFeaturesExtractor):
+    def __init__(self, observation_space, features_dim):
+        super(CustomCNN_attention, self).__init__(observation_space, features_dim)
+
+        self.cnn = nn.Sequential(
+            nn.Conv2d(observation_space.shape[0], 24, kernel_size=6, stride=4, padding=0),
+            nn.ReLU(),
+            nn.Conv2d(24, 32, kernel_size=3, stride=2, padding=0),
+            nn.ReLU(),
+            nn.Conv2d(32, 48, kernel_size=2, stride=1, padding=0),
+            nn.ReLU(),
+            nn.Flatten(),
+        )
+
+        # Dummy input to calculate flat features size
+        with torch.no_grad():
+            n_flatten = self.cnn(
+                torch.as_tensor(observation_space.sample()[None]).float()
+            ).shape[1]
+
+        # Feature dimension for self-attention, reshaping is needed
+        self.feature_dim = n_flatten // 48  # assuming last conv outputs 48 channels
+        self.reshape = nn.Unflatten(1, (48, self.feature_dim))
+
+        # Adding the self-attention layer
+        self.self_attention = SelfAttention(feature_dim=self.feature_dim, num_heads=2)
+
+        self.linear = nn.Sequential(
+            nn.Linear(n_flatten, features_dim),
+            nn.ReLU()
+        )
+
+    def forward(self, observation: torch.Tensor) -> torch.Tensor:
+        x = self.cnn(observation)
+        x = self.reshape(x)
+        x = self.self_attention(x)
+        x = x.flatten(start_dim=1)  # Flatten back before feeding into linear layer
+        return self.linear(x)
+
+
 class SelfAttention(nn.Module):
-    def __init__(self, feature_dim, num_heads=3):
+    def __init__(self, feature_dim, num_heads=2):
         super(SelfAttention, self).__init__()
         self.num_heads = num_heads
         self.attention = nn.MultiheadAttention(embed_dim=feature_dim, num_heads=num_heads)
@@ -173,10 +173,10 @@ def visualize_attention_weights(attn_weights, seq_labels=None):
     """
     # Calculate the mean of the attention weights across all heads
     attn_weights_mean = torch.mean(attn_weights, dim=0)  # Shape: [seq_len, seq_len]
-
+    attn_weights_mean_nparray = attn_weights_mean.cpu()
     # Plotting
     fig, ax = plt.subplots(figsize=(8, 8))
-    cax = ax.matshow(attn_weights_mean.detach().numpy(), cmap='bone')
+    cax = ax.matshow(attn_weights_mean_nparray.detach().numpy(), cmap='bone')
     fig.colorbar(cax)
 
     if seq_labels:
