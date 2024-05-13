@@ -22,7 +22,7 @@ height, width = 48, 48
 min_gripper_height = 0.09
 max_gripper_height = 0.25
 
-min_picking_height = 0.01
+min_picking_height = 0.02
 max_picking_height = 0.1
 
 class GripperEnv(gym.Env):
@@ -78,7 +78,8 @@ class GripperEnv(gym.Env):
 
     def step(self, action):
         ### ACTION ###
-        self.robot.apply_action_xyz(action, self.dist_to_goal)
+
+        self.robot.apply_action(action, self.dist_to_goal)
         p.stepSimulation()
 
         ### OBSERVATION ###
@@ -86,7 +87,13 @@ class GripperEnv(gym.Env):
 
         ### REWARD ###
         tcp_world = self.robot.get_tcp_world()
-        reward = self.calculate_reward_full(tcp_world)
+        goal_xyz = self.cube.get_pos()
+
+        self.dist_to_goal = math.sqrt(((tcp_world[0] - goal_xyz[0]) ** 2 +
+                                       (tcp_world[1] - goal_xyz[1]) ** 2 +
+                                       (tcp_world[2] - goal_xyz[2]) ** 2))
+
+        reward = self.calculate_reward_perception_only()
 
         self.sim_length -= 1
 
@@ -213,41 +220,32 @@ class GripperEnv(gym.Env):
 
         return reward
 
-    def calculate_reward_gpt(self, tcp):
+    def calculate_reward_perception_only(self):
         ### SHAPED REWARD PERSONAL ###
-        reward = -1  # Moderately reduced time penalty to encourage efficiency
+        reward = -2  # Time penalty
 
         self.check_for_grasping()
         self.check_for_collisions()
 
         if self.COLLISION_FLAG:
-            reward -= 100  # Reduced collision penalty to balance with the benefits of successful behavior
+            reward -= 200
             self.terminated = True
             self.last_results.append(0)
             print("CRASH")
 
-        # Calculate distance to goal
-        goal_xyz = self.cube.get_pos()
-        self.dist_to_goal = math.sqrt(((tcp[0] - goal_xyz[0]) ** 2 +
-                                       (tcp[1] - goal_xyz[1]) ** 2 +
-                                       (tcp[2] - goal_xyz[2]) ** 2))
+        if self.GRASPING_FLAG:
+            reward += 1
 
-        reward -= 5 * self.dist_to_goal  # Reduced scaling factor for distance to goal
+            # Lifting reward
+            if self.cube.get_pos()[2] > 0.02:
+                reward += (self.cube.get_pos()[2] - 0.02) * 10
 
-        if self.dist_to_goal < 0.04:
-            reward += 1  # Increase reward for proximity
-            if self.GRASPING_FLAG:
-                reward += 1  # Increase reward for grasping
-                # Incremental reward for lifting higher
-                lifting_reward = max(0, (self.cube.get_pos()[2] - 0.02) * 50)
-                reward += lifting_reward
-
-                # Major reward for reaching target height
-                if self.cube.get_pos()[2] > 0.02 + self.picking_height:
-                    reward += 300  # Increased terminal reward to significantly incentivize reaching this goal
-                    self.last_results.append(1)
-                    self.terminated = True
-                    print("DONE")
+            # Terminal state bei self.picking_height
+            if self.cube.get_pos()[2] > 0.02 + self.picking_height:
+                 reward += 300
+                 self.last_results.append(1)
+                 self.terminated = True
+                 print("DONE")
 
         return reward
 

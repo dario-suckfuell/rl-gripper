@@ -18,7 +18,7 @@ save_path = os.path.join('rl_gripper', 'training', 'saved_models', 'PPO_Model_1_
 ### LOAD ENVIRONMENT ###
 ### LOAD TRAINING ENVIRONMENT ###
 
-env = gym.make("Gripper-v0", cube_position='FIX', curriculum=True)
+env = gym.make("Gripper-v0", cube_position='FIX', curriculum=False)
 
 x_fader = p.addUserDebugParameter("X", -1, 1, 0)
 y_fader = p.addUserDebugParameter("Y", -1, 1, 0)

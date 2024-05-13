@@ -12,10 +12,12 @@ from stable_baselines3.common.env_util import make_vec_env
 
 
 save_path = os.path.join('rl_gripper', 'training', 'saved_models')
+save_path = os.path.join('rl_gripper', 'training', 'saved_models', 'Working')
 norm_path = os.path.join(save_path, 'best_model_vec_normalize.pkl')
+norm_path = os.path.join(save_path, 'SAC_PerceptionOnly_VecNorm.pkl')
 
 # Load the trained model
-model = SAC.load(os.path.join(save_path, 'best_model'))
+model = SAC.load(os.path.join(save_path, 'SAC_PerceptionOnly'))
 
 ### LOAD ENVIRONMENT ###
 env_kwargs = {'render_mode': 'GUI',

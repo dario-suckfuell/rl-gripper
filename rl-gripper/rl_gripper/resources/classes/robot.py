@@ -10,7 +10,7 @@ import time
 ### GRIPPER SETTINGS ###
 gripperIndices = [8, 9, 10, 11, 12, 13]
 maxJointVel = 8
-endEffectorIdx = 15 #TCP
+endEffectorIdx = 15  #TCP
 
 ### CAMERA SETTINGS ###
 width, height = 48, 48
@@ -35,19 +35,20 @@ class Robot:
         self.gripper_start_pos = gripper_start_pos
         self.gripper_start_orn = p.getQuaternionFromEuler([math.pi, 0, 0])
 
-        joint_angles = p.calculateInverseKinematics(self.id, endEffectorIdx, self.gripper_start_pos, self.gripper_start_orn,
+        self.curr_joint_angles = p.calculateInverseKinematics(self.id, endEffectorIdx, self.gripper_start_pos,
+                                                    self.gripper_start_orn,
                                                     lowerLimits=self.ll_joints, upperLimits=self.ul_joints)
         p.resetJointStatesMultiDof(self.id, [1, 2, 3, 4, 5, 6],
-                                   [[joint_angles[0]], [joint_angles[1]], [joint_angles[2]], [joint_angles[3]],
-                                    [joint_angles[4]], [joint_angles[5]]])
+                                   [[self.curr_joint_angles[0]], [self.curr_joint_angles[1]], [self.curr_joint_angles[2]], [self.curr_joint_angles[3]],
+                                    [self.curr_joint_angles[4]], [self.curr_joint_angles[5]]])
 
-        self.state = np.array([*p.getLinkState(self.id, 14)[0], 0], dtype=np.float32)  # Start Position [X, Y, Z, Gw]
+        self.state = np.array([*p.getLinkState(self.id, endEffectorIdx)[4], 0, 0], dtype=np.float32)  # Start Position [X, Y, Z, Yaw, Gw]
         self.timer = 0
 
     def get_ids(self):
         return self.client, self.id
 
-    def apply_action_xyz(self, action, dist_to_goal):
+    def apply_action(self, action, dist_to_goal):
         ### APPLY POSITIONAL ACTION TO ACTUATORS - PIXEL TO RELATIVE POSITION ###
 
         # gripperWidth = np.clip(self.state[3] + 0.1 * action[3], 0.0, 0.85)
@@ -57,33 +58,38 @@ class Robot:
             self.close_gripper()
 
         ### POSITION ###
-        rot_matrix_endEff_to_world = np.array(p.getMatrixFromQuaternion(p.getLinkState(self.id, endEffectorIdx)[1])).reshape(3, 3)
+        rot_matrix_endEff_to_world = np.array(p.getMatrixFromQuaternion(p.getLinkState(self.id, endEffectorIdx)[5])).reshape(3, 3)
         curr_endEff_pos_world = p.getLinkState(self.id, endEffectorIdx)[4]  # 3x1
         action_pos_cam = np.array([action[0], action[1], action[2]]) * 0.1  # 3x1
         action_pos_world = rot_matrix_endEff_to_world @ action_pos_cam  # 3x1
         next_endEff_pos_world = curr_endEff_pos_world + action_pos_world  # 3x1
 
         ### ORIENTATION  EULER ###
-        # rot_matrix_cam = np.array(p.getMatrixFromQuaternion(p.getLinkState(self.id, 14)[1])).reshape(3, 3)
-        # curr_cam_orn_world = p.getEulerFromQuaternion(p.getLinkState(self.id, 14)[1])
+        # rot_matrix_cam = np.array(p.getMatrixFromQuaternion(p.getLinkState(self.id, endEffectorIdx)[1])).reshape(3, 3)
+        # curr_cam_orn_world = p.getEulerFromQuaternion(p.getLinkState(self.id, endEffectorIdx)[1])
         # action_orn_cam = np.array([0, 0, action[3]])
         # action_orn_world = rot_matrix_cam @ action_orn_cam
-        # next_cam_orn_world = p.getQuaternionFromEuler(curr_cam_orn_world + action_orn_world)
+        # next_endEff_orn_world = p.getQuaternionFromEuler(curr_cam_orn_world + action_orn_world)
 
         ### ORIENTATION QUATS ###
-        # curr_cam_orn_world = p.getLinkState(self.id, 14)[1]
-        # rot_winkel = action[3]
-        # rot_quat = np.array([0, 0, -math.sin(rot_winkel/2), math.cos(rot_winkel/2)])
-        # next_cam_orn_world = self.multiply_quaternions(curr_cam_orn_world, rot_quat)
+        # curr_endEff_orn_world = p.getLinkState(self.id, endEffectorIdx)[5]
+        # rot_angle = action[3]*3.14
+        # rot_quat = np.array([0, 0, -math.sin(rot_angle / 2), math.cos(rot_angle / 2)])
+        # next_endEff_orn_world = self.multiply_quaternions(curr_endEff_orn_world, rot_quat)
 
-        joint_angles = p.calculateInverseKinematics(self.id, endEffectorIdx, next_endEff_pos_world, self.gripper_start_orn,
-                                                    lowerLimits=self.ll_joints, upperLimits=self.ul_joints)
+        new_joint_angles = p.calculateInverseKinematics(self.id, endEffectorIdx, next_endEff_pos_world, self.gripper_start_orn,
+                                                              lowerLimits=self.ll_joints,
+                                                              upperLimits=self.ul_joints)
 
         for i in range(6):
             p.setJointMotorControl2(self.id, i + 1,
                                     controlMode=p.POSITION_CONTROL,
                                     maxVelocity=maxJointVel,
-                                    targetPosition=joint_angles[i])
+                                    targetPosition=new_joint_angles[i])
+
+
+        #p.setJointMotorControl2(self.id, 6, p.POSITION_CONTROL, targetPosition=3.14 * action[3], maxVelocity=10)
+
 
         # for joint_index in gripperIndices:
         #     p.setJointMotorControl2(self.id, joint_index,
@@ -108,11 +114,11 @@ class Robot:
 
         view_matrix = p.computeViewMatrix(camera_pos, lookat_pos, upvec)
 
-        projection_matrix = p.computeProjectionMatrixFOV(fov, aspect, near, far) #Abspeichern! ZEIT CHECKEN
+        projection_matrix = p.computeProjectionMatrixFOV(fov, aspect, near, far)  #Abspeichern! ZEIT CHECKEN
 
         results = p.getCameraImage(width, height, view_matrix, projection_matrix,
-                                                               shadow=False,
-                                                               renderer=p.ER_BULLET_HARDWARE_OPENGL)
+                                   shadow=False,
+                                   renderer=p.ER_BULLET_HARDWARE_OPENGL)
 
         # rgb_flat = np.array(rgb_flat).reshape(16384, 1).ravel()
         # rgb_flat = np.array(rgb_flat.reshape(16384, 1)).ravel()
@@ -123,7 +129,7 @@ class Robot:
 
         # Extract depth image
         depth_buffer = np.asarray(results[3], np.float32).reshape(height, width)
-        depth = 1.0 * far * near / (far - (far - near) * depth_buffer) #Linearisierung
+        depth = 1.0 * far * near / (far - (far - near) * depth_buffer)  #Linearisierung
 
         depth = (np.array(depth) * 255).reshape(width, height, 1).astype(np.uint8)
 

@@ -88,13 +88,13 @@ eval_callback = EvalCallback(eval_env, best_model_save_path=save_path,
                              eval_freq=5000,    #eval_freq = eval_freq * n_envs
                              deterministic=True, render=False, n_eval_episodes=10,
                              callback_on_new_best=save_vec_normalize)
-checkpoint_callback = CheckpointCallback(save_freq=10000, save_path=os.path.join('rl_gripper', 'training', 'checkpoints'), name_prefix='SAC_Final_01',
+checkpoint_callback = CheckpointCallback(save_freq=20000, save_path=os.path.join('rl_gripper', 'training', 'checkpoints'), name_prefix='SAC_Final_01',
                                          save_replay_buffer=False,
                                          save_vecnormalize=True)
 curriculum_callback = CurriculumCallback(model)
 tensorboard_callback = TensorboardCallback(model)
 
-model.learn(total_timesteps=500000, callback=[eval_callback, checkpoint_callback, tensorboard_callback, curriculum_callback], progress_bar=True)
+model.learn(total_timesteps=2000000, callback=[eval_callback, checkpoint_callback, tensorboard_callback, curriculum_callback], progress_bar=True)
 model.save(os.path.join(save_path, "SAC_Final_01.zip"))
 train_env.save(os.path.join(save_path, "vec_normalize.pkl"))
 
