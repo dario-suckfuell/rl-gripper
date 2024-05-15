@@ -4,14 +4,19 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="070c7250-1589-45e7-98dc-ac98a3a5dfdc" name="Changes" comment="vision based working">
+    <list default="true" id="070c7250-1589-45e7-98dc-ac98a3a5dfdc" name="Changes" comment="perception only working">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/rl-gripper/evaluation.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/evaluation.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/rl-gripper/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rl-gripper/manualControl.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/manualControl.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/envs/CustomGripperEnv.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/envs/CustomGripperEnv.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/cube.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/cube.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/randomObject.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/randomObject.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/robot.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/robot.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/workspace.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/workspace.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/training/saved_models/SAC_Final_01.zip" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/training/saved_models/SAC_Final_02.zip" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/training/saved_models/best_model.zip" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/training/saved_models/best_model.zip" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/training/saved_models/best_model_vec_normalize.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/training/saved_models/best_model_vec_normalize.pkl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/training/saved_models/vec_normalize.pkl" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -77,7 +82,7 @@
       <recent name="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.evaluation">
+  <component name="RunManager" selected="Python.manualControl">
     <configuration name="evaluation" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="rl-gripper" />
       <option name="ENV_FILES" value="" />
@@ -168,8 +173,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.evaluation" />
         <item itemvalue="Python.manualControl" />
+        <item itemvalue="Python.evaluation" />
         <item itemvalue="Python.robot" />
         <item itemvalue="Python.evaluation" />
         <item itemvalue="Python.manualControl" />
@@ -240,7 +245,15 @@
       <option name="project" value="LOCAL" />
       <updated>1715330360837</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="perception only working">
+      <option name="closed" value="true" />
+      <created>1715590963220</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1715590963220</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -275,6 +288,7 @@
     <MESSAGE value="coordinate based working with curriculum (workspace_area, gripper_start_height)" />
     <MESSAGE value="coordinate based working with curriculum" />
     <MESSAGE value="vision based working" />
-    <option name="LAST_COMMIT_MESSAGE" value="vision based working" />
+    <MESSAGE value="perception only working" />
+    <option name="LAST_COMMIT_MESSAGE" value="perception only working" />
   </component>
 </project>

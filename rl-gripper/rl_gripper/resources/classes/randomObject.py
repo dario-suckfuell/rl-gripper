@@ -1,14 +1,17 @@
 import pybullet as p
 import random
+import math
 
 
 class RandomObject:
-    def __init__(self, client, workspace):
+    def __init__(self, client, workspace, dataset):
         self.client = client
-        f_path = self.generate_path_for_random_object()
+        f_path = self.generate_path_for_random_object(dataset)
 
         self.start_pos = self.get_start_pos(workspace)
-        self.id = p.loadURDF(f_path, self.start_pos, p.getQuaternionFromEuler([0, 0, 0]))
+        self.start_orn = p.getQuaternionFromEuler([0, 0, random.uniform(-math.pi, math.pi)])
+
+        self.id = p.loadURDF(f_path, self.start_pos, self.start_orn)
 
     @staticmethod
     def get_start_pos(workspace):
@@ -22,10 +25,17 @@ class RandomObject:
     def get_pos(self):
         return list(p.getBasePositionAndOrientation(self.id)[0])
 
-    def generate_path_for_random_object(self):
+    def generate_path_for_random_object(self, dataset):
 
         # Generiert eine zufällige Zahl zwischen 000 und 999
-        number = random.randint(0, 999)
+        if dataset == 'TRAINING':
+            number = random.randint(0, 699)
+        elif dataset == 'VALIDATION':
+            number = random.randint(700, 849)
+        elif dataset == 'TEST':
+            number = random.randint(850, 999)
+
+
         formatted_number = f"{number:03}"
 
         #Path erstellen

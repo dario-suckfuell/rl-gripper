@@ -36,13 +36,15 @@ class Robot:
         self.gripper_start_orn = p.getQuaternionFromEuler([math.pi, 0, 0])
 
         self.curr_joint_angles = p.calculateInverseKinematics(self.id, endEffectorIdx, self.gripper_start_pos,
-                                                    self.gripper_start_orn,
-                                                    lowerLimits=self.ll_joints, upperLimits=self.ul_joints)
+                                                              self.gripper_start_orn,
+                                                              lowerLimits=self.ll_joints, upperLimits=self.ul_joints)
         p.resetJointStatesMultiDof(self.id, [1, 2, 3, 4, 5, 6],
-                                   [[self.curr_joint_angles[0]], [self.curr_joint_angles[1]], [self.curr_joint_angles[2]], [self.curr_joint_angles[3]],
+                                   [[self.curr_joint_angles[0]], [self.curr_joint_angles[1]],
+                                    [self.curr_joint_angles[2]], [self.curr_joint_angles[3]],
                                     [self.curr_joint_angles[4]], [self.curr_joint_angles[5]]])
 
-        self.state = np.array([*p.getLinkState(self.id, endEffectorIdx)[4], 0, 0], dtype=np.float32)  # Start Position [X, Y, Z, Yaw, Gw]
+        self.state = np.array([*p.getLinkState(self.id, endEffectorIdx)[4], 0, 0],
+                              dtype=np.float32)  # Start Position [X, Y, Z, Yaw, Gw]
         self.timer = 0
 
     def get_ids(self):
@@ -51,17 +53,12 @@ class Robot:
     def apply_action(self, action, dist_to_goal):
         ### APPLY POSITIONAL ACTION TO ACTUATORS - PIXEL TO RELATIVE POSITION ###
 
-        # gripperWidth = np.clip(self.state[3] + 0.1 * action[3], 0.0, 0.85)
-        # self.state[3] = gripperWidth
-
-        if dist_to_goal < 0.04:
-            self.close_gripper()
-
         ### POSITION ###
-        rot_matrix_endEff_to_world = np.array(p.getMatrixFromQuaternion(p.getLinkState(self.id, endEffectorIdx)[5])).reshape(3, 3)
+        rot_matrix_endEff_to_world = np.array(
+            p.getMatrixFromQuaternion(p.getLinkState(self.id, endEffectorIdx)[5])).reshape(3, 3)
         curr_endEff_pos_world = p.getLinkState(self.id, endEffectorIdx)[4]  # 3x1
-        action_pos_cam = np.array([action[0], action[1], action[2]]) * 0.1  # 3x1
-        action_pos_world = rot_matrix_endEff_to_world @ action_pos_cam  # 3x1
+        action_pos_tcp = np.array([action[0], action[1], action[2]]) * 0.1  # 3x1
+        action_pos_world = rot_matrix_endEff_to_world @ action_pos_tcp  # 3x1
         next_endEff_pos_world = curr_endEff_pos_world + action_pos_world  # 3x1
 
         ### ORIENTATION  EULER ###
@@ -72,31 +69,25 @@ class Robot:
         # next_endEff_orn_world = p.getQuaternionFromEuler(curr_cam_orn_world + action_orn_world)
 
         ### ORIENTATION QUATS ###
-        # curr_endEff_orn_world = p.getLinkState(self.id, endEffectorIdx)[5]
-        # rot_angle = action[3]*3.14
-        # rot_quat = np.array([0, 0, -math.sin(rot_angle / 2), math.cos(rot_angle / 2)])
-        # next_endEff_orn_world = self.multiply_quaternions(curr_endEff_orn_world, rot_quat)
+        curr_endEff_orn_world = p.getLinkState(self.id, endEffectorIdx)[5]
+        # rot_angle = action[3]*1.5
+        # rot_quat = np.array([0, 0, math.sin(rot_angle / 2), math.cos(rot_angle / 2)])
+        # next_endEff_orn_world = self.multiply_quaternions(rot_quat, curr_endEff_orn_world)
+        # print(next_endEff_orn_world)
 
-        new_joint_angles = p.calculateInverseKinematics(self.id, endEffectorIdx, next_endEff_pos_world, self.gripper_start_orn,
-                                                              lowerLimits=self.ll_joints,
-                                                              upperLimits=self.ul_joints)
 
-        for i in range(6):
+        new_joint_angles = p.calculateInverseKinematics(self.id, endEffectorIdx, next_endEff_pos_world, curr_endEff_orn_world,
+                                                        lowerLimits=self.ll_joints,
+                                                        upperLimits=self.ul_joints)
+        self.set_yaw(action[3])
+        self.set_gripper(action[4])
+
+
+        for i in range(5):
             p.setJointMotorControl2(self.id, i + 1,
                                     controlMode=p.POSITION_CONTROL,
                                     maxVelocity=maxJointVel,
                                     targetPosition=new_joint_angles[i])
-
-
-        #p.setJointMotorControl2(self.id, 6, p.POSITION_CONTROL, targetPosition=3.14 * action[3], maxVelocity=10)
-
-
-        # for joint_index in gripperIndices:
-        #     p.setJointMotorControl2(self.id, joint_index,
-        #                             controlMode=p.POSITION_CONTROL,
-        #                             targetPosition=gripperWidth,
-        #                             maxVelocity=15,
-        #                             force=100)
 
     def get_camera_data(self):
         #print("in get_camera_data")
@@ -166,15 +157,37 @@ class Robot:
 
     def close_gripper(self):
 
-        gripperWidth = np.clip(self.state[3] + 0.1 * 1.6, 0.0, 0.7)
-        self.state[3] = gripperWidth
+        gripperWidth = np.clip(self.state[4] + 0.15 * 1, 0.0, 0.8)
+        self.state[4] = gripperWidth
 
         for joint_index in gripperIndices:
             p.setJointMotorControl2(self.id, joint_index,
                                     controlMode=p.POSITION_CONTROL,
                                     targetPosition=gripperWidth,
                                     maxVelocity=20,
-                                    force=200)
+                                    force=100)
+
+    def set_gripper(self, action):
+
+        gripper_width = np.clip(self.state[4] + 0.10 * action, 0.0, 0.7)
+        self.state[4] = gripper_width
+
+        for joint_index in gripperIndices:
+            p.setJointMotorControl2(self.id, joint_index,
+                                    controlMode=p.POSITION_CONTROL,
+                                    targetPosition=gripper_width,
+                                    maxVelocity=20,
+                                    force=100)
+
+    def set_yaw(self, action):
+        target_position = np.clip(self.state[3] + 0.15 * action, -math.pi/2, math.pi/2)
+        self.state[3] = target_position
+
+        p.setJointMotorControl2(self.id, 6,
+                                controlMode=p.POSITION_CONTROL,
+                                targetPosition=target_position,
+                                force=100)
+
 
 
 '''

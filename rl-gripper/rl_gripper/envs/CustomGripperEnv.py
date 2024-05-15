@@ -27,35 +27,34 @@ max_picking_height = 0.1
 
 class GripperEnv(gym.Env):
     # metadata = {'render_modes': ['GUI', 'DIRECT']
-    #            'cube_position': ['FIX', 'RANDOM']
-    #            'curriculum': [True, False]}
+    #             'cube_position': ['FIX', 'RANDOM']
+    #             'curriculum': [True, False]
+    #             'dataset': ['TRAINING', 'VALIDATION', 'TEST']}
 
-    def __init__(self, cube_position='FIX', render_mode='GUI', curriculum=False):
+    def __init__(self, cube_position='FIX', render_mode='GUI', curriculum=False, dataset='TRAINING'):
+
+        self.dataset = dataset
 
         # ACTION SPACE
         self.action_space = Box(
-            low=np.array([-1, -1, -1], dtype=np.float16),
-            high=np.array([1, 1, 1], dtype=np.float16))
-
+            low=np.array([-1, -1, -1, -1, -1], dtype=np.float16),
+            high=np.array([1, 1, 1, 1, 1], dtype=np.float16))
 
         # OBSERVATION SPACE (Greyscale Depth Image Input, Later also Gripper Width)
         self.observation_space = Box(low=0, high=255, shape=(height, width, 1), dtype=np.uint8)
 
-        # OBSERVATION SPACE (tcp_x, tcp_y, tcp_z, goal_x, goal_y, goal_z)
-        # self.observation_space = Box(
-        #     low=np.array([-1, -1, -1, -1, -1, -1], dtype=np.float16),
-        #     high=np.array([1, 1, 1, 1, 1, 1], dtype=np.float16))
-
         self.sim_length = sim_length
         self.np_random, _ = gym.utils.seeding.np_random()
+
         self.terminated = False
         self.truncated = False
+
         self.COLLISION_FLAG = False
         self.GRASPING_FLAG = False
         self.dist_to_goal = 100
 
         self.last_results = deque(maxlen=window_size)  # Results of the last 50 Episodes
-        self.curr_counter = 0
+        self.curr_counter = 0 # Counter for curriculum labs
 
         if curriculum:
             self.gripper_start_pos = [0.42, 0.0, min_gripper_height]
@@ -119,8 +118,8 @@ class GripperEnv(gym.Env):
 
         self.plane = Plane(self.client)
         self.robot = Robot(self.client, self.gripper_start_pos)
-        self.cube = Cube(self.client, self.workspace)
-        #self.cube = RandomObject(self.client, self.workspace)
+        #self.cube = Cube(self.client, self.workspace)
+        self.cube = RandomObject(self.client, self.workspace, self.dataset)
 
         # Observation to start
         obs = self.get_full_observation()

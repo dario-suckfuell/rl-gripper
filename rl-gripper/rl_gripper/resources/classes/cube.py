@@ -2,6 +2,7 @@ import pybullet as p
 import numpy as np
 import os
 import random
+import math
 
 
 class Cube:
@@ -11,7 +12,8 @@ class Cube:
         # DEBUG_CUBE self.id = p.loadURDF(f_path, [0.21, 0, 0.025], p.getQuaternionFromEuler([0, 0, 0]))
 
         self.start_pos = self.get_start_pos(workspace)
-        self.id = p.loadURDF(f_path, self.start_pos, p.getQuaternionFromEuler([0, 0, 0]))
+        self.start_orn = p.getQuaternionFromEuler([0, 0, random.uniform(-math.pi, math.pi)])
+        self.id = p.loadURDF(f_path, self.start_pos, self.start_orn)
 
     @staticmethod
     def get_start_pos(workspace):
