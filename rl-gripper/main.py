@@ -20,6 +20,7 @@ from rl_gripper.resources.functions.helper import load_config
 #Dropout for better generalisierung
 #Attention Num Heads opt
 #Adaptive Noise Scaling
+#SDG
 #VecFrameStack?
 #NAdam Optm?
 #Curr Threshold auf 0.6?
@@ -68,12 +69,13 @@ eval_env = VecMonitor(eval_env)
 policy_kwargs = dict(
     features_extractor_class=CustomCNN_attention,
     features_extractor_kwargs=dict(features_dim=512),
+    net_arch=[400, 300]
 )
 
 # Configure the Ornstein-Uhlenbeck action noise
 ou_noise_mean = np.zeros(5)
-ou_noise_sigma = np.array([0.3, 0.3, 0.35, 0.25, 0.2])
-ou_noise_theta = np.array([0.2, 0.2, 0.25, 0.2, 0.16])   # how "fast" the noise variable reverts towards the mean; increase for more exploration
+ou_noise_sigma = np.array([0.3, 0.3, 0.30, 0.25, 0.2])
+ou_noise_theta = np.array([0.2, 0.2, 0.2, 0.2, 0.16])   # how "fast" the noise variable reverts towards the mean; increase for more exploration
 ou_noise_dt = 1e-2  # time step size
 action_noise = OrnsteinUhlenbeckActionNoise(mean=ou_noise_mean, sigma=ou_noise_sigma, theta=ou_noise_theta, dt=ou_noise_dt)
 
@@ -82,7 +84,7 @@ model = SAC("CnnPolicy", train_env,
             buffer_size=1000000,
             batch_size=64,
             ent_coef='auto',
-            learning_rate=0.00035,
+            learning_rate=0.0003,
             learning_starts=5000,
             gamma=0.99,
             device='cuda',
@@ -96,7 +98,7 @@ model = SAC("CnnPolicy", train_env,
 # Customize the optimizer
 model.policy.optimizer_class = torch.optim.Adam
 #model.policy.optimizer_class = torch.optim.nadam
-model.policy.optimizer_kwargs = dict(lr=0.00035, betas=(0.72, 0.85))
+model.policy.optimizer_kwargs = dict(lr=0.0003, betas=(0.82, 0.95))
 
 ### CALLBACKS ###
 save_vec_normalize = SaveNormalizationCallback(train_env, save_path)

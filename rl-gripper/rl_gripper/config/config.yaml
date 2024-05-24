@@ -2,18 +2,18 @@ env:
  sim_length: 82
 
 curriculum:
- curr_laps: 60
+ curr_laps: 6
  window_size: 50
  threshold_for_increase: 0.7
 
  min_workspace_area: 0.02
  max_workspace_area: 0.15
 
- min_gripper_height: 0.11
+ min_gripper_height: 0.09
  max_gripper_height: 0.25
 
  min_picking_height: 0.02
- max_picking_height: 0.08
+ max_picking_height: 0.02
 
 camera:
  height: 48
