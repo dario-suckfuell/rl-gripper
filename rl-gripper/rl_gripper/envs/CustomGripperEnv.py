@@ -3,6 +3,7 @@ import pybullet as p
 from gymnasium.spaces import Box
 import numpy as np
 import random
+import yaml
 import math
 from collections import deque
 
@@ -13,17 +14,22 @@ from rl_gripper.resources.classes.randomObject import RandomObject
 from rl_gripper.resources.classes.workspace import Workspace
 from rl_gripper.resources.functions.helper import load_config
 
-sim_length = 82
-curr_laps = 6
-window_size = 50
+config = load_config()
 
-height, width = 48, 48
+sim_length = config['env']['sim_length']
 
-min_gripper_height = 0.09
-max_gripper_height = 0.25
+curr_laps = config['curriculum']['curr_laps']
+window_size = config['curriculum']['window_size']
 
-min_picking_height = 0.02
-max_picking_height = 0.1
+min_gripper_height = config['curriculum']['min_gripper_height']
+max_gripper_height = config['curriculum']['max_gripper_height']
+
+min_picking_height = config['curriculum']['min_picking_height']
+max_picking_height = config['curriculum']['max_picking_height']
+
+height = config['camera']['height']
+width = config['camera']['width']
+
 
 class GripperEnv(gym.Env):
     # metadata = {'render_modes': ['GUI', 'DIRECT']
@@ -54,7 +60,7 @@ class GripperEnv(gym.Env):
         self.dist_to_goal = 100
 
         self.last_results = deque(maxlen=window_size)  # Results of the last 50 Episodes
-        self.curr_counter = 0 # Counter for curriculum labs
+        self.curr_counter = 0  # Counter for curriculum labs
 
         if curriculum:
             self.gripper_start_pos = [0.42, 0.0, min_gripper_height]
@@ -68,7 +74,7 @@ class GripperEnv(gym.Env):
 
         self.client = p.connect(p.GUI if render_mode == 'GUI' else p.DIRECT)
         p.setGravity(0, 0, -9.81)
-        p.setTimeStep(1/240, self.client)
+        p.setTimeStep(1 / 240, self.client)
 
         self.robot = None
         self.plane = None
@@ -221,7 +227,7 @@ class GripperEnv(gym.Env):
 
     def calculate_reward_perception_only(self):
         ### SHAPED REWARD PERSONAL ###
-        reward = -2  # Time penalty
+        reward = -2.7  # Time penalty
 
         self.check_for_grasping()
         self.check_for_collisions()
@@ -237,14 +243,14 @@ class GripperEnv(gym.Env):
 
             # Lifting reward
             if self.cube.get_pos()[2] > 0.02:
-                reward += (self.cube.get_pos()[2] - 0.02) * 10
+                reward += (self.cube.get_pos()[2] - 0.02) * 20
 
             # Terminal state bei self.picking_height
             if self.cube.get_pos()[2] > 0.02 + self.picking_height:
-                 reward += 300
-                 self.last_results.append(1)
-                 self.terminated = True
-                 print("DONE")
+                reward += 300
+                self.last_results.append(1)
+                self.terminated = True
+                print("DONE")
 
         return reward
 
@@ -305,20 +311,21 @@ class GripperEnv(gym.Env):
             print("New curriculum stage!")
             self.last_results = deque(maxlen=window_size)
 
-            self.workspace.xMin = np.maximum(self.workspace.xMin - self.workspace.max_workspace_area / 2 / curr_laps, 0.4 - self.workspace.max_workspace_area/2)
-            self.workspace.xMax = np.minimum(self.workspace.xMax + self.workspace.max_workspace_area / 2 / curr_laps, 0.4 + self.workspace.max_workspace_area/2)
-            self.workspace.yMin = np.maximum(self.workspace.yMin - self.workspace.max_workspace_area / 2 / curr_laps, 0.0 - self.workspace.max_workspace_area/2)
-            self.workspace.yMax = np.minimum(self.workspace.yMax + self.workspace.max_workspace_area / 2 / curr_laps, 0.0 + self.workspace.max_workspace_area/2)
+            self.workspace.xMin = np.maximum(self.workspace.xMin - self.workspace.max_workspace_area / 2 / curr_laps,
+                                             0.4 - self.workspace.max_workspace_area / 2)
+            self.workspace.xMax = np.minimum(self.workspace.xMax + self.workspace.max_workspace_area / 2 / curr_laps,
+                                             0.4 + self.workspace.max_workspace_area / 2)
+            self.workspace.yMin = np.maximum(self.workspace.yMin - self.workspace.max_workspace_area / 2 / curr_laps,
+                                             0.0 - self.workspace.max_workspace_area / 2)
+            self.workspace.yMax = np.minimum(self.workspace.yMax + self.workspace.max_workspace_area / 2 / curr_laps,
+                                             0.0 + self.workspace.max_workspace_area / 2)
 
-            newGripperHeight = np.minimum(self.gripper_start_pos[2] + (max_gripper_height - min_gripper_height)/curr_laps, max_gripper_height)
+            newGripperHeight = np.minimum(
+                self.gripper_start_pos[2] + (max_gripper_height - min_gripper_height) / curr_laps, max_gripper_height)
             self.gripper_start_pos = [self.gripper_start_pos[0], self.gripper_start_pos[1], newGripperHeight]
 
-            newPickingHeight = np.minimum(self.picking_height + (max_picking_height - min_picking_height)/curr_laps, max_picking_height)
+            newPickingHeight = np.minimum(self.picking_height + (max_picking_height - min_picking_height) / curr_laps,
+                                          max_picking_height)
             self.picking_height = newPickingHeight
 
             self.curr_counter += 1
-
-
-
-
-

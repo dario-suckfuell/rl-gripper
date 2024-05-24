@@ -111,10 +111,13 @@ class CustomCNN_attention(BaseFeaturesExtractor):
         self.cnn = nn.Sequential(
             nn.Conv2d(observation_space.shape[0], 24, kernel_size=6, stride=4, padding=0),
             nn.ReLU(),
+            nn.Dropout(0.1),  # Dropout after activation
             nn.Conv2d(24, 32, kernel_size=3, stride=2, padding=0),
             nn.ReLU(),
+            nn.Dropout(0.1),  # Dropout after activation
             nn.Conv2d(32, 48, kernel_size=2, stride=1, padding=0),
             nn.ReLU(),
+            nn.Dropout(0.1),  # Dropout after activation
             nn.Flatten(),
         )
 
@@ -129,11 +132,12 @@ class CustomCNN_attention(BaseFeaturesExtractor):
         self.reshape = nn.Unflatten(1, (48, self.feature_dim))
 
         # Adding the self-attention layer
-        self.self_attention = SelfAttention(feature_dim=self.feature_dim, num_heads=2)
+        self.self_attention = SelfAttention(feature_dim=self.feature_dim, num_heads=4)
 
         self.linear = nn.Sequential(
             nn.Linear(n_flatten, features_dim),
-            nn.ReLU()
+            nn.ReLU(),
+            nn.Dropout(0.3),  # Dropout after activation
         )
 
     def forward(self, observation: torch.Tensor) -> torch.Tensor:

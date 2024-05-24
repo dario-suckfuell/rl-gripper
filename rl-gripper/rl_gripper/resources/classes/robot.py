@@ -1,5 +1,7 @@
 import pybullet as p
 import rl_gripper.resources.functions.jointFunctions as jointFunctions
+from rl_gripper.resources.functions.helper import load_config
+
 import numpy as np
 import math
 import random
@@ -7,17 +9,23 @@ import os
 import ntpath
 import time
 
+config = load_config()
+
 ### GRIPPER SETTINGS ###
 gripperIndices = [8, 9, 10, 11, 12, 13]
 maxJointVel = 8
 endEffectorIdx = 15  #TCP
 
 ### CAMERA SETTINGS ###
-width, height = 48, 48
+height = config['camera']['height']
+width = config['camera']['width']
 aspect = width / height
-near, far = 0.003, 1.0
-#near, far = 0.02, 2.0 #thesis
-fov = 120
+near = config['camera']['near']
+far = config['camera']['far']
+
+
+fov = config['camera']['fov']
+
 
 
 class Robot:

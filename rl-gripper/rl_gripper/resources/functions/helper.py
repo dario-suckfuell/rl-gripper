@@ -21,8 +21,7 @@ def spawn_random_cubes(count):
         cubeID = p.loadURDF("model/cube.urdf", [x, y, .8], p.getQuaternionFromEuler([0, 0, 0]))
 
 
-def load_config():
-    path = 'rl_gripper/config/config.yaml'
+def load_config(path='rl_gripper/config/config.yaml'):
     with open(path, 'r') as file:
         config = yaml.safe_load(file)
     return config

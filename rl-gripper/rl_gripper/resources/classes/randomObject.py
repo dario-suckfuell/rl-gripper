@@ -11,7 +11,7 @@ class RandomObject:
         self.start_pos = self.get_start_pos(workspace)
         self.start_orn = p.getQuaternionFromEuler([0, 0, random.uniform(-math.pi, math.pi)])
 
-        self.id = p.loadURDF(f_path, self.start_pos, self.start_orn)
+        self.id = p.loadURDF(f_path, self.start_pos, self.start_orn, globalScaling=0.8)
 
     @staticmethod
     def get_start_pos(workspace):
@@ -29,11 +29,11 @@ class RandomObject:
 
         # Generiert eine zufällige Zahl zwischen 000 und 999
         if dataset == 'TRAINING':
-            number = random.randint(0, 699)
+            number = random.randint(0, 69)
         elif dataset == 'VALIDATION':
-            number = random.randint(700, 849)
+            number = random.randint(70, 84)
         elif dataset == 'TEST':
-            number = random.randint(850, 999)
+            number = random.randint(85, 99)
 
 
         formatted_number = f"{number:03}"

@@ -1,7 +1,7 @@
 
 
 min_workspace_area = 0.02
-max_workspace_area = 0.2 #Maximale Seitenlänge der rechteckigen Arbeitsfläche (Mittelpunkt bei (0.4, 0.0))
+max_workspace_area = 0.15 #Maximale Seitenlänge der rechteckigen Arbeitsfläche (Mittelpunkt bei (0.4, 0.0))
 
 class Workspace:
     def __init__(self):
