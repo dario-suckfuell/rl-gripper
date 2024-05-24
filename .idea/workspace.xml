@@ -4,20 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="070c7250-1589-45e7-98dc-ac98a3a5dfdc" name="Changes" comment="perception only working">
-      <change afterPath="$PROJECT_DIR$/rl-gripper/accessOptimazation.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/rl-gripper/optunaOptimazation.py" afterDir="false" />
+    <list default="true" id="070c7250-1589-45e7-98dc-ac98a3a5dfdc" name="Changes" comment="recent">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rl-gripper/evaluation.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/evaluation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rl-gripper/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/envs/CustomGripperEnv.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/envs/CustomGripperEnv.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/customFeaturesExtractor.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/customFeaturesExtractor.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/randomObject.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/randomObject.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/robot.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/robot.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/workspace.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/workspace.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/functions/helper.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/functions/helper.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/training/saved_models/best_model.zip" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/training/saved_models/best_model.zip" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/training/saved_models/best_model_vec_normalize.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/training/saved_models/best_model_vec_normalize.pkl" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -85,7 +73,7 @@
       <recent name="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.evaluation">
+  <component name="RunManager" selected="Python.main">
     <configuration name="accessOptimazation" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="rl-gripper" />
       <option name="ENV_FILES" value="" />
@@ -308,7 +296,15 @@
       <option name="project" value="LOCAL" />
       <updated>1715786230020</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="recent">
+      <option name="closed" value="true" />
+      <created>1716551737035</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1716551737035</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -344,6 +340,7 @@
     <MESSAGE value="coordinate based working with curriculum" />
     <MESSAGE value="vision based working" />
     <MESSAGE value="perception only working" />
-    <option name="LAST_COMMIT_MESSAGE" value="perception only working" />
+    <MESSAGE value="recent" />
+    <option name="LAST_COMMIT_MESSAGE" value="recent" />
   </component>
 </project>
