@@ -124,8 +124,8 @@ class GripperEnv(gym.Env):
 
         self.plane = Plane(self.client)
         self.robot = Robot(self.client, self.gripper_start_pos)
-        #self.cube = Cube(self.client, self.workspace)
-        self.cube = RandomObject(self.client, self.workspace, self.dataset)
+        self.cube = Cube(self.client, self.workspace)
+        #self.cube = RandomObject(self.client, self.workspace, self.dataset)
 
         # Observation to start
         obs = self.get_full_observation()
@@ -227,7 +227,7 @@ class GripperEnv(gym.Env):
 
     def calculate_reward_perception_only(self):
         ### SHAPED REWARD PERSONAL ###
-        reward = -2.7  # Time penalty
+        reward = -2  # Time penalty
 
         self.check_for_grasping()
         self.check_for_collisions()
@@ -243,7 +243,7 @@ class GripperEnv(gym.Env):
 
             # Lifting reward
             if self.cube.get_pos()[2] > 0.02:
-                reward += (self.cube.get_pos()[2] - 0.02) * 20
+                reward += (self.cube.get_pos()[2] - 0.02) * 10
 
             # Terminal state bei self.picking_height
             if self.cube.get_pos()[2] > 0.02 + self.picking_height:

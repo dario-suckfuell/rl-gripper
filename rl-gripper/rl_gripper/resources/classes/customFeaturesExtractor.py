@@ -148,6 +148,50 @@ class CustomCNN_attention(BaseFeaturesExtractor):
         return self.linear(x)
 
 
+class CustomCNN_attentionBIG(BaseFeaturesExtractor):
+    def __init__(self, observation_space, features_dim):
+        super(CustomCNN_attentionBIG, self).__init__(observation_space, features_dim)
+
+        self.cnn = nn.Sequential(
+            nn.Conv2d(observation_space.shape[0], 24, kernel_size=6, stride=4, padding=0),
+            nn.ReLU(),
+            nn.Dropout(0.1),  # Dropout after activation
+            nn.Conv2d(24, 48, kernel_size=3, stride=2, padding=0),
+            nn.ReLU(),
+            nn.Dropout(0.1),  # Dropout after activation
+            nn.Conv2d(48, 64, kernel_size=2, stride=1, padding=0),
+            nn.ReLU(),
+            nn.Dropout(0.1),  # Dropout after activation
+            nn.Flatten(),
+        )
+
+        # Dummy input to calculate flat features size
+        with torch.no_grad():
+            n_flatten = self.cnn(
+                torch.as_tensor(observation_space.sample()[None]).float()
+            ).shape[1]
+
+        # Feature dimension for self-attention, reshaping is needed
+        self.feature_dim = n_flatten // 64  # assuming last conv outputs 48 channels
+        self.reshape = nn.Unflatten(1, (64, self.feature_dim))
+
+        # Adding the self-attention layer
+        self.self_attention = SelfAttention(feature_dim=self.feature_dim, num_heads=8)
+
+        self.linear = nn.Sequential(
+            nn.Linear(n_flatten, features_dim),
+            nn.ReLU(),
+            nn.Dropout(0.4),  # Dropout after activation
+        )
+
+    def forward(self, observation: torch.Tensor) -> torch.Tensor:
+        x = self.cnn(observation)
+        x = self.reshape(x)
+        x = self.self_attention(x)
+        x = x.flatten(start_dim=1)  # Flatten back before feeding into linear layer
+        return self.linear(x)
+
+
 class SelfAttention(nn.Module):
     def __init__(self, feature_dim, num_heads=2):
         super(SelfAttention, self).__init__()
