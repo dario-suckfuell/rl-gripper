@@ -137,7 +137,7 @@ class CustomCNN_attention(BaseFeaturesExtractor):
         self.linear = nn.Sequential(
             nn.Linear(n_flatten, features_dim),
             nn.ReLU(),
-            nn.Dropout(0.3),  # Dropout after activation
+            nn.Dropout(0.4),  # Dropout after activation
         )
 
     def forward(self, observation: torch.Tensor) -> torch.Tensor:

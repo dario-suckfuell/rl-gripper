@@ -1,7 +1,9 @@
+from rl_gripper.resources.functions.helper import load_config
 
+config = load_config()
 
-min_workspace_area = 0.02
-max_workspace_area = 0.15 #Maximale Seitenlänge der rechteckigen Arbeitsfläche (Mittelpunkt bei (0.4, 0.0))
+min_workspace_area = config['curriculum']['min_workspace_area']
+max_workspace_area = config['curriculum']['max_workspace_area'] #Maximale Seitenlänge der rechteckigen Arbeitsfläche (Mittelpunkt bei (0.4, 0.0))
 
 class Workspace:
     def __init__(self):

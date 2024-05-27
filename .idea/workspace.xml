@@ -4,12 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="070c7250-1589-45e7-98dc-ac98a3a5dfdc" name="Changes" comment="recent">
+    <list default="true" id="070c7250-1589-45e7-98dc-ac98a3a5dfdc" name="Changes" comment="setup bigger model for random object dataset with 64x64 pixel observation">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/rl-gripper.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/rl-gripper.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/rl-gripper/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/config/config.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/config/config.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/envs/CustomGripperEnv.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/envs/CustomGripperEnv.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/customFeaturesExtractor.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/customFeaturesExtractor.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/workspace.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/workspace.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/training/saved_models/best_model.zip" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/training/saved_models/best_model.zip" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/training/saved_models/best_model_vec_normalize.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/training/saved_models/best_model_vec_normalize.pkl" afterDir="false" />
     </list>
@@ -58,28 +60,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_ADD_EXTERNAL_FILES": "true",
-    "Python.accessOptimazation.executor": "Run",
-    "Python.evaluation.executor": "Run",
-    "Python.main.executor": "Run",
-    "Python.manualControl.executor": "Run",
-    "Python.optunaOptimazation.executor": "Run",
-    "Python.robot.executor": "Run",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "vision-based",
-    "last_opened_file_path": "/home/dsuckfuell/rl-gripper",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;Python.accessOptimazation.executor&quot;: &quot;Run&quot;,
+    &quot;Python.evaluation.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main.executor&quot;: &quot;Run&quot;,
+    &quot;Python.manualControl.executor&quot;: &quot;Run&quot;,
+    &quot;Python.optunaOptimazation.executor&quot;: &quot;Run&quot;,
+    &quot;Python.robot.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;vision-based&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/dsuckfuell/rl-gripper&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.evaluation">
+  <component name="RunManager" selected="Python.main">
     <configuration name="accessOptimazation" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="rl-gripper" />
       <option name="ENV_FILES" value="" />
@@ -326,15 +328,7 @@
       <option name="project" value="LOCAL" />
       <updated>1716552108955</updated>
     </task>
-    <task id="LOCAL-00012" summary="recent">
-      <option name="closed" value="true" />
-      <created>1716565757985</created>
-      <option name="number" value="00012" />
-      <option name="presentableId" value="LOCAL-00012" />
-      <option name="project" value="LOCAL" />
-      <updated>1716565757985</updated>
-    </task>
-    <option name="localTasksCounter" value="13" />
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -371,6 +365,7 @@
     <MESSAGE value="vision based working" />
     <MESSAGE value="perception only working" />
     <MESSAGE value="recent" />
-    <option name="LAST_COMMIT_MESSAGE" value="recent" />
+    <MESSAGE value="setup bigger model for random object dataset with 64x64 pixel observation" />
+    <option name="LAST_COMMIT_MESSAGE" value="setup bigger model for random object dataset with 64x64 pixel observation" />
   </component>
 </project>

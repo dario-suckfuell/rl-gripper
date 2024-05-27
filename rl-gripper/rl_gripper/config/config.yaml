@@ -16,8 +16,8 @@ curriculum:
  max_picking_height: 0.10
 
 camera:
- height: 48
- width: 48
+ height: 64
+ width: 64
  near: 0.003 #near, far = 0.02, 2.0 #thesis
  far: 1.0
  fov: 120
