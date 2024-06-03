@@ -5,11 +5,211 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="070c7250-1589-45e7-98dc-ac98a3a5dfdc" name="Changes" comment="recent">
+      <change afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/dataset.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/randomObjectYCB.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/evaluation.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/evaluation.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/rl-gripper/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/manualControl.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/manualControl.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/config/config.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/config/config.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/envs/CustomGripperEnv.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/envs/CustomGripperEnv.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/customFeaturesExtractor.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/customFeaturesExtractor.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/randomObject.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/randomObject.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/robot.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/robot.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/workspace.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/workspace.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/blue_moon/collision.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/blue_moon/model.urdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/blue_moon/texture_map.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/blue_moon/textured.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/blue_moon/textured.obj.mtl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/blue_moon/visual.ply" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/blue_plate/collision.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/blue_plate/model.urdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/blue_plate/texture_map.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/blue_plate/textured.mtl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/blue_plate/textured.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/blue_plate/visual.ply" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_1/collision.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_1/model.urdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_1/texture_map.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_1/textured.mtl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_1/textured.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_1/visual.ply" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_2/collision.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_2/model.urdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_2/texture_map.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_2/textured.mtl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_2/textured.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_2/visual.ply" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_3/collision.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_3/model.urdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_3/texture_map.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_3/textured.mtl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_3/textured.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_3/visual.ply" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_4/collision.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_4/model.urdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_4/texture_map.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_4/textured.mtl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_4/textured.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_4/visual.ply" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_5/collision.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_5/model.urdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_5/texture_map.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_5/textured.mtl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_5/textured.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_5/visual.ply" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_6/collision.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_6/model.urdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_6/texture_map.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_6/textured.mtl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_6/textured.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_6/visual.ply" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_holder_1/collision.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_holder_1/model.urdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_holder_1/texture_map.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_holder_1/textured.mtl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_holder_1/textured.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_holder_1/visual.ply" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_holder_2/collision.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_holder_2/model.urdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_holder_2/texture_map.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_holder_2/textured.mtl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_holder_2/textured.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_holder_2/visual.ply" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_holder_3/collision.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_holder_3/model.urdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_holder_3/texture_map.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_holder_3/textured.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_holder_3/textured.obj.mtl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/book_holder_3/visual.ply" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/clear_box/collision.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/clear_box/model.urdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/clear_box/texture_map.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/clear_box/textured.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/clear_box/textured.obj.mtl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/clear_box/visual.ply" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/clear_box_1/collision.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/clear_box_1/model.urdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/clear_box_1/texture_map.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/clear_box_1/textured.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/clear_box_1/textured.obj.mtl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/clear_box_1/visual.ply" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/clear_box_2/collision.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/clear_box_2/model.urdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/clear_box_2/texture_map.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/clear_box_2/textured.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/clear_box_2/textured.obj.mtl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/clear_box_2/visual.ply" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/doraemon_plate/collision.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/doraemon_plate/model.urdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/doraemon_plate/textured.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/doraemon_plate/textured.obj.mtl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/doraemon_plate/textured_map.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/doraemon_plate/visual.ply" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/grey_plate/collision.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/grey_plate/model.urdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/grey_plate/texture_map.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/grey_plate/textured.mtl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/grey_plate/textured.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/grey_plate/visual.ply" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/pen_container_1/collision.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/pen_container_1/model.urdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/pen_container_1/texture_map.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/pen_container_1/textured.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/pen_container_1/textured.obj.mtl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/pen_container_1/visual.ply" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/pitcher/collision.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/pitcher/model.urdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/pitcher/texture_map.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/pitcher/textured.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/pitcher/textured.obj.mtl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/pitcher/visual.ply" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/plate/collision.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/plate/model.urdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/plate/texture_map.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/plate/textured.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/plate/textured.obj.mtl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/plate/visual.ply" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/plate_holder/collision.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/plate_holder/model.urdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/plate_holder/texture_map.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/plate_holder/textured.mtl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/plate_holder/textured.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/plate_holder/visual.ply" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/potato_chip_1/collision.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/potato_chip_1/model.urdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/potato_chip_1/texture_map.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/potato_chip_1/textured.mtl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/potato_chip_1/textured.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/potato_chip_1/visual.ply" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/potato_chip_2/collision.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/potato_chip_2/model.urdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/potato_chip_2/texture_map.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/potato_chip_2/textured.mtl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/potato_chip_2/textured.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/potato_chip_2/visual.ply" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/potato_chip_3/collision.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/potato_chip_3/model.urdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/potato_chip_3/texture_map.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/potato_chip_3/textured.mtl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/potato_chip_3/textured.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/potato_chip_3/visual.ply" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/round_plate_1/collision.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/round_plate_1/model.urdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/round_plate_1/texture_map.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/round_plate_1/textured.mtl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/round_plate_1/textured.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/round_plate_1/visual.ply" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/round_plate_2/collision.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/round_plate_2/model.urdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/round_plate_2/texture_map.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/round_plate_2/textured.mtl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/round_plate_2/textured.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/round_plate_2/visual.ply" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/round_plate_3/collision.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/round_plate_3/model.urdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/round_plate_3/texture_map.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/round_plate_3/textured.mtl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/round_plate_3/textured.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/round_plate_3/visual.ply" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/round_plate_4/collision.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/round_plate_4/model.urdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/round_plate_4/texture_map.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/round_plate_4/textured.mtl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/round_plate_4/textured.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/round_plate_4/visual.ply" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/shampoo/collision.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/shampoo/model.urdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/shampoo/texture_map.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/shampoo/textured.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/shampoo/textured.obj.mtl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/shampoo/visual.ply" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/square_plate_1/collision.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/square_plate_1/model.urdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/square_plate_1/texture_map.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/square_plate_1/textured.mtl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/square_plate_1/textured.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/square_plate_1/visual.ply" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/square_plate_2/collision.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/square_plate_2/model.urdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/square_plate_2/texture_map.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/square_plate_2/textured.mtl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/square_plate_2/textured.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/square_plate_2/visual.ply" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/square_plate_3/collision.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/square_plate_3/model.urdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/square_plate_3/texture_map.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/square_plate_3/textured.mtl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/square_plate_3/textured.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/square_plate_3/visual.ply" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/square_plate_4/collision.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/square_plate_4/model.urdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/square_plate_4/texture_map.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/square_plate_4/textured.mtl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/square_plate_4/textured.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/square_plate_4/visual.ply" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/training/saved_models/best_model.zip" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/training/saved_models/best_model.zip" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/training/saved_models/best_model_vec_normalize.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/training/saved_models/best_model_vec_normalize.pkl" afterDir="false" />
     </list>
@@ -63,14 +263,15 @@
     "ASKED_ADD_EXTERNAL_FILES": "true",
     "Python.accessOptimazation.executor": "Run",
     "Python.evaluation.executor": "Run",
-    "Python.main.executor": "Run",
+    "Python.main.executor": "Debug",
     "Python.manualControl.executor": "Run",
     "Python.optunaOptimazation.executor": "Run",
     "Python.robot.executor": "Run",
+    "Python.test.executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "vision-based",
-    "last_opened_file_path": "/home/dsuckfuell/rl-gripper",
+    "last_opened_file_path": "/home/dsuckfuell/rl-gripper/rl-gripper/rl_gripper/resources/classes",
     "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
 }]]></component>
@@ -79,7 +280,7 @@
       <recent name="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.evaluation">
+  <component name="RunManager" selected="Python.manualControl">
     <configuration name="accessOptimazation" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="rl-gripper" />
       <option name="ENV_FILES" value="" />
@@ -190,7 +391,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="robot" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="test" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="rl-gripper" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -199,11 +400,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/rl-gripper" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/robot.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/rl-gripper/test.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -214,18 +415,18 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.evaluation" />
         <item itemvalue="Python.manualControl" />
+        <item itemvalue="Python.evaluation" />
+        <item itemvalue="Python.test" />
         <item itemvalue="Python.accessOptimazation" />
         <item itemvalue="Python.optunaOptimazation" />
-        <item itemvalue="Python.robot" />
       </list>
     </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-python-sdk-0509580d9d50-746f403e7f0c-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-241.14494.241" />
+        <option value="bundled-python-sdk-babbdf50b680-746f403e7f0c-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-241.15989.155" />
       </set>
     </attachedChunks>
   </component>
@@ -334,7 +535,15 @@
       <option name="project" value="LOCAL" />
       <updated>1716565757985</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="recent">
+      <option name="closed" value="true" />
+      <created>1716805388542</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1716805388542</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">

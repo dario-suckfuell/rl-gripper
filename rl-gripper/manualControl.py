@@ -18,7 +18,7 @@ save_path = os.path.join('rl_gripper', 'training', 'saved_models', 'PPO_Model_1_
 ### LOAD ENVIRONMENT ###
 ### LOAD TRAINING ENVIRONMENT ###
 
-env = gym.make("Gripper-v0", cube_position='FIX', curriculum=False)
+env = gym.make("Gripper-v0", cube_position='FIX', curriculum=True, dataset='YCB')
 
 x_fader = p.addUserDebugParameter("X", -1, 1, 0)
 y_fader = p.addUserDebugParameter("Y", -1, 1, 0)
@@ -44,7 +44,7 @@ while True:
         action = np.array([x, y, z, yaw, Gw])
 
         obs, reward, terminated, truncated, info = env.step(action)
-        print(reward)
+        #print(reward)
         score += reward
         #print("\nStepreward: {}".format(reward))
     print('\nScore: {}'.format(score))

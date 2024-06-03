@@ -1,8 +1,10 @@
 import gymnasium as gym
 import os
 from rl_gripper.envs.CustomGripperEnv import GripperEnv
-from rl_gripper.resources.classes.customFeaturesExtractor import CustomCNN, CustomCNN_attention, CustomCNN_attentionBIG
-from rl_gripper.resources.classes.customCallbacks import TensorboardCallback, CurriculumCallback, SaveNormalizationCallback
+from rl_gripper.resources.classes.customFeaturesExtractor import CustomCNN, CustomCNN_attention, CustomCNN_attentionBIG, \
+    EfficientNetFeatureExtractor
+from rl_gripper.resources.classes.customCallbacks import TensorboardCallback, CurriculumCallback, \
+    SaveNormalizationCallback
 from stable_baselines3 import SAC, PPO
 from stable_baselines3.common.vec_env import DummyVecEnv, VecMonitor, VecEnv, VecNormalize, SubprocVecEnv
 from stable_baselines3.common.vec_env import VecFrameStack, VecTransposeImage
@@ -13,6 +15,7 @@ from stable_baselines3.her.her_replay_buffer import HerReplayBuffer
 from stable_baselines3.common.noise import OrnsteinUhlenbeckActionNoise, NormalActionNoise
 import numpy as np
 from rl_gripper.resources.functions.helper import load_config
+import torch.profiler
 
 #TODO
 #Config File
@@ -33,7 +36,6 @@ from rl_gripper.resources.functions.helper import load_config
 
 config = load_config()
 
-
 ### 01 ###
 
 torch.cuda.empty_cache()
@@ -44,7 +46,7 @@ save_path = os.path.join('rl_gripper', 'training', 'saved_models')
 env_kwargs = {'render_mode': 'DIRECT',
               'cube_position': 'RANDOM',
               'curriculum': True,
-              'dataset': 'TRAINING'}
+              'dataset': 'YCB'}
 
 train_env = make_vec_env("Gripper-v0", n_envs=1, env_kwargs=env_kwargs)
 train_env = VecTransposeImage(train_env)
@@ -56,7 +58,7 @@ train_env = VecMonitor(train_env)
 env_kwargs = {'render_mode': 'DIRECT',
               'cube_position': 'RANDOM',
               'curriculum': False,
-              'dataset': 'VALIDATION'}
+              'dataset': 'YCB'}
 
 eval_env = make_vec_env("Gripper-v0", n_envs=1, env_kwargs=env_kwargs)
 eval_env = VecTransposeImage(eval_env)
@@ -68,55 +70,62 @@ eval_env = VecMonitor(eval_env)
 
 policy_kwargs = dict(
     features_extractor_class=CustomCNN_attention,
-    features_extractor_kwargs=dict(features_dim=1024),
-    net_arch=[400, 300]
+    features_extractor_kwargs=dict(features_dim=512),
+    net_arch=[512, 256]
 )
 
 # Configure the Ornstein-Uhlenbeck action noise
 ou_noise_mean = np.zeros(5)
-ou_noise_sigma = np.array([0.23, 0.23, 0.23, 0.20, 0.15])
-ou_noise_theta = np.array([0.17, 0.17, 0.17, 0.15, 0.12])   # how "fast" the noise variable reverts towards the mean; increase for more exploration
+ou_noise_sigma = np.array([0.25, 0.25, 0.25, 0.20, 0.20])
+ou_noise_theta = np.array([0.20, 0.20, 0.20, 0.15,
+                           0.15])  # how "fast" the noise variable reverts towards the mean; increase for more exploration
 ou_noise_dt = 1e-2  # time step size
-action_noise = OrnsteinUhlenbeckActionNoise(mean=ou_noise_mean, sigma=ou_noise_sigma, theta=ou_noise_theta, dt=ou_noise_dt)
+action_noise = OrnsteinUhlenbeckActionNoise(mean=ou_noise_mean, sigma=ou_noise_sigma, theta=ou_noise_theta,
+                                            dt=ou_noise_dt)
 
 model = SAC("CnnPolicy", train_env,
             verbose=1,
-            buffer_size=500000,
-            batch_size=128,
+            buffer_size=50000,
+            batch_size=64,
             ent_coef='auto',
-            learning_rate=0.00035,
-            learning_starts=5000,
+            learning_rate=0.0003,
+            learning_starts=1,
             gamma=0.99,
             device='cuda',
             policy_kwargs=policy_kwargs,
-            gradient_steps=3,
-            tau=0.005, #increase for faster updates (faster adaption of new policy)
-            train_freq=3,
+            gradient_steps=4,
+            tau=0.005,  #increase for faster updates (faster adaption of new policy)
+            train_freq=4,
             action_noise=action_noise,
             tensorboard_log=log_path)
 
 # Customize the optimizer
 model.policy.optimizer_class = torch.optim.Adam
 #model.policy.optimizer_class = torch.optim.nadam
-model.policy.optimizer_kwargs = dict(lr=0.00035, betas=(0.78, 0.9))
+model.policy.optimizer_kwargs = dict(lr=0.0003, betas=(0.82, 0.99))  #Beta2 nicht zu niedrig (0.99)
 
 ### CALLBACKS ###
 save_vec_normalize = SaveNormalizationCallback(train_env, save_path)
 eval_callback = EvalCallback(eval_env, best_model_save_path=save_path,
-                             eval_freq=5000,    #eval_freq = eval_freq * n_envs
+                             eval_freq=5000,  #eval_freq = eval_freq * n_envs
                              deterministic=True, render=False, n_eval_episodes=10,
                              callback_on_new_best=save_vec_normalize)
-checkpoint_callback = CheckpointCallback(save_freq=20000, save_path=os.path.join('rl_gripper', 'training', 'checkpoints'), name_prefix='SAC_FullRun_4M',
+checkpoint_callback = CheckpointCallback(save_freq=20000,
+                                         save_path=os.path.join('rl_gripper', 'training', 'checkpoints'),
+                                         name_prefix='SAC_FullRun_Cube',
                                          save_replay_buffer=False,
                                          save_vecnormalize=True)
 curriculum_callback = CurriculumCallback(model)
 tensorboard_callback = TensorboardCallback(model)
 
-model.learn(total_timesteps=2000000, callback=[eval_callback, checkpoint_callback, tensorboard_callback, curriculum_callback], progress_bar=True)
-model.save(os.path.join(save_path, "SAC_FullRun_4M.zip"))
-train_env.save(os.path.join(save_path, "SAC_FullRun_4M_vec_normalize.pkl"))
+
+model.learn(total_timesteps=2000000,
+                callback=[eval_callback, checkpoint_callback, tensorboard_callback, curriculum_callback],
+                progress_bar=True)
+
+model.save(os.path.join(save_path, "SAC_FullRun_Cube.zip"))
+train_env.save(os.path.join(save_path, "SAC_FullRun_Cube_vec_normalize.pkl"))
 
 del model
 del train_env
 del eval_env
-

@@ -11,19 +11,19 @@ from stable_baselines3.common.vec_env import VecFrameStack, VecTransposeImage
 from stable_baselines3.common.env_util import make_vec_env
 
 
-save_path = os.path.join('rl_gripper', 'training', 'saved_models')
-#save_path = os.path.join('rl_gripper', 'training', 'saved_models', 'Working', 'promising')
+#save_path = os.path.join('rl_gripper', 'training', 'saved_models')
+save_path = os.path.join('rl_gripper', 'training', 'saved_models', 'Working', 'gripper_test')
 norm_path = os.path.join(save_path, 'best_model_vec_normalize.pkl')
-#norm_path = os.path.join(save_path, 'SAC_GripperTest_vec_normalize.pkl')
+norm_path = os.path.join(save_path, 'SAC_GripperTest_vec_normalize.pkl')
 
 # Load the trained model
-model = SAC.load(os.path.join(save_path, 'best_model'))
+model = SAC.load(os.path.join(save_path, 'SAC_GripperTest'))
 
 ### LOAD ENVIRONMENT ###
 env_kwargs = {'render_mode': 'GUI',
               'cube_position': 'RANDOM',
               'curriculum': False,
-              'dataset': 'TEST'}
+              'dataset': 'YCB'}
 
 eval_env = make_vec_env("Gripper-v0", n_envs=1, env_kwargs=env_kwargs)
 eval_env = VecTransposeImage(eval_env)

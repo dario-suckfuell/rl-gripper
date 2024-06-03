@@ -13,7 +13,7 @@ config = load_config()
 
 ### GRIPPER SETTINGS ###
 gripperIndices = [8, 9, 10, 11, 12, 13]
-maxJointVel = 8
+maxJointVel = 3.14
 endEffectorIdx = 15  #TCP
 
 ### CAMERA SETTINGS ###
@@ -65,7 +65,7 @@ class Robot:
         rot_matrix_endEff_to_world = np.array(
             p.getMatrixFromQuaternion(p.getLinkState(self.id, endEffectorIdx)[5])).reshape(3, 3)
         curr_endEff_pos_world = p.getLinkState(self.id, endEffectorIdx)[4]  # 3x1
-        action_pos_tcp = np.array([action[0], action[1], action[2]]) * 0.1  # 3x1
+        action_pos_tcp = np.array([action[0], action[1], action[2]]) * 0.03  # 3x1
         action_pos_world = rot_matrix_endEff_to_world @ action_pos_tcp  # 3x1
         next_endEff_pos_world = curr_endEff_pos_world + action_pos_world  # 3x1
 
@@ -172,7 +172,7 @@ class Robot:
             p.setJointMotorControl2(self.id, joint_index,
                                     controlMode=p.POSITION_CONTROL,
                                     targetPosition=gripperWidth,
-                                    maxVelocity=20,
+                                    maxVelocity=2,
                                     force=100)
 
     def set_gripper(self, action):
@@ -184,7 +184,7 @@ class Robot:
             p.setJointMotorControl2(self.id, joint_index,
                                     controlMode=p.POSITION_CONTROL,
                                     targetPosition=gripper_width,
-                                    maxVelocity=20,
+                                    maxVelocity=2,
                                     force=100)
 
     def set_yaw(self, action):
