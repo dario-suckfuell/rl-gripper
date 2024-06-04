@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="070c7250-1589-45e7-98dc-ac98a3a5dfdc" name="Changes" comment="added dataset class for cube, randomObject and ycb">
+    <list default="true" id="070c7250-1589-45e7-98dc-ac98a3a5dfdc" name="Changes" comment="recent">
       <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/rl-gripper/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/main.py" afterDir="false" />
@@ -545,7 +545,15 @@
       <option name="project" value="LOCAL" />
       <updated>1717420363039</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="recent">
+      <option name="closed" value="true" />
+      <created>1717503812442</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1717503812442</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -581,8 +589,8 @@
     <MESSAGE value="coordinate based working with curriculum" />
     <MESSAGE value="vision based working" />
     <MESSAGE value="perception only working" />
-    <MESSAGE value="recent" />
     <MESSAGE value="added dataset class for cube, randomObject and ycb" />
-    <option name="LAST_COMMIT_MESSAGE" value="added dataset class for cube, randomObject and ycb" />
+    <MESSAGE value="recent" />
+    <option name="LAST_COMMIT_MESSAGE" value="recent" />
   </component>
 </project>
