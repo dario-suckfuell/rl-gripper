@@ -38,11 +38,11 @@ class TensorboardCallback(BaseCallback):
 
 
 class CurriculumCallback(BaseCallback):
-    def __init__(self, model, verbose=0):
+    def __init__(self, model, threshold_for_increase=0.7, verbose=0):
         super(CurriculumCallback, self).__init__(verbose)
         self.model = model  # Store the model instance
         self.eval_freq = 1000  # Evaluate every 1000 steps
-        self.threshold_for_increase = 0.7
+        self.threshold_for_increase = threshold_for_increase
         self.success_rate = 0
         self.n_steps = 0
 

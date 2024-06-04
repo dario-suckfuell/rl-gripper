@@ -258,7 +258,9 @@ class GripperEnv(gym.Env):
                 reward += (self.object.get_pos()[2] - 0.02) * 10
 
             # Terminal state bei self.picking_height
-            if self.object.get_pos()[2] > 0.02 + self.picking_height:
+            actual_picking_height = np.random.normal(self.picking_height, self.picking_height/3)
+
+            if self.object.get_pos()[2] > 0.02 + actual_picking_height:
                 reward += 300
                 self.last_results.append(1)
                 self.terminated = True

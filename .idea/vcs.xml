@@ -2,5 +2,6 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB" vcs="Git" />
   </component>
 </project>

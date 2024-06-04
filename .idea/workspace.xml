@@ -4,20 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="070c7250-1589-45e7-98dc-ac98a3a5dfdc" name="Changes" comment="recent">
-      <change afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/dataset.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/randomObjectYCB.py" afterDir="false" />
+    <list default="true" id="070c7250-1589-45e7-98dc-ac98a3a5dfdc" name="Changes" comment="added dataset class for cube, randomObject and ycb">
       <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rl-gripper/evaluation.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/evaluation.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/rl-gripper/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rl-gripper/manualControl.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/manualControl.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/config/config.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/config/config.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/envs/CustomGripperEnv.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/envs/CustomGripperEnv.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/customFeaturesExtractor.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/customFeaturesExtractor.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/randomObject.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/randomObject.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/robot.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/robot.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/workspace.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/workspace.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/customCallbacks.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes/customCallbacks.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/blue_moon/collision.obj" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/blue_moon/model.urdf" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/blue_moon/texture_map.jpg" beforeDir="false" />
@@ -210,6 +203,7 @@
       <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/square_plate_4/textured.mtl" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/square_plate_4/textured.obj" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models/square_plate_4/visual.ply" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models_data.py" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/models/YCB/urdf_models/models_data.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/training/saved_models/best_model.zip" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/training/saved_models/best_model.zip" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/rl-gripper/rl_gripper/training/saved_models/best_model_vec_normalize.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/rl-gripper/rl_gripper/training/saved_models/best_model_vec_normalize.pkl" afterDir="false" />
     </list>
@@ -263,7 +257,7 @@
     "ASKED_ADD_EXTERNAL_FILES": "true",
     "Python.accessOptimazation.executor": "Run",
     "Python.evaluation.executor": "Run",
-    "Python.main.executor": "Debug",
+    "Python.main.executor": "Run",
     "Python.manualControl.executor": "Run",
     "Python.optunaOptimazation.executor": "Run",
     "Python.robot.executor": "Run",
@@ -280,7 +274,7 @@
       <recent name="$PROJECT_DIR$/rl-gripper/rl_gripper/resources/classes" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.manualControl">
+  <component name="RunManager" selected="Python.main">
     <configuration name="accessOptimazation" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="rl-gripper" />
       <option name="ENV_FILES" value="" />
@@ -543,7 +537,15 @@
       <option name="project" value="LOCAL" />
       <updated>1716805388542</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="added dataset class for cube, randomObject and ycb">
+      <option name="closed" value="true" />
+      <created>1717420363039</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1717420363039</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -580,6 +582,7 @@
     <MESSAGE value="vision based working" />
     <MESSAGE value="perception only working" />
     <MESSAGE value="recent" />
-    <option name="LAST_COMMIT_MESSAGE" value="recent" />
+    <MESSAGE value="added dataset class for cube, randomObject and ycb" />
+    <option name="LAST_COMMIT_MESSAGE" value="added dataset class for cube, randomObject and ycb" />
   </component>
 </project>

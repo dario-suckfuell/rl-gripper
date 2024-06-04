@@ -18,17 +18,14 @@ from rl_gripper.resources.functions.helper import load_config
 import torch.profiler
 
 #TODO
-#Config File
 #(Pretrained) Vision Transformer Model
-#Dropout for better generalisierung
-#Attention Num Heads opt
 #Adaptive Noise Scaling
 #SDG
 #VecFrameStack?
-#NAdam Optm?
 #Curr Threshold auf 0.6?
-#obj scaling
-#Picking Height continuierlich
+
+#Picking Height normalverteilung
+#NAdam Optm?
 
 
 #tensorboard --logdir=C:\Users\Dario\Desktop\rl-gripper\rl-gripper\rl_gripper\training\logs\depth_input
@@ -69,9 +66,9 @@ eval_env = VecMonitor(eval_env)
 ### TRAINING ###
 
 policy_kwargs = dict(
-    features_extractor_class=CustomCNN_attention,
-    features_extractor_kwargs=dict(features_dim=512),
-    net_arch=[512, 256]
+    features_extractor_class=CustomCNN_attentionBIG,
+    features_extractor_kwargs=dict(features_dim=1024),
+    net_arch=[512, 512, 256]
 )
 
 # Configure the Ornstein-Uhlenbeck action noise
@@ -85,7 +82,7 @@ action_noise = OrnsteinUhlenbeckActionNoise(mean=ou_noise_mean, sigma=ou_noise_s
 
 model = SAC("CnnPolicy", train_env,
             verbose=1,
-            buffer_size=50000,
+            buffer_size=1000000,
             batch_size=64,
             ent_coef='auto',
             learning_rate=0.0003,
@@ -112,19 +109,18 @@ eval_callback = EvalCallback(eval_env, best_model_save_path=save_path,
                              callback_on_new_best=save_vec_normalize)
 checkpoint_callback = CheckpointCallback(save_freq=20000,
                                          save_path=os.path.join('rl_gripper', 'training', 'checkpoints'),
-                                         name_prefix='SAC_FullRun_Cube',
+                                         name_prefix='SAC_FullRun_YCB',
                                          save_replay_buffer=False,
                                          save_vecnormalize=True)
-curriculum_callback = CurriculumCallback(model)
+curriculum_callback = CurriculumCallback(model, threshold_for_increase=config['curriculum']['threshold_for_increase'])
 tensorboard_callback = TensorboardCallback(model)
-
 
 model.learn(total_timesteps=2000000,
                 callback=[eval_callback, checkpoint_callback, tensorboard_callback, curriculum_callback],
                 progress_bar=True)
 
-model.save(os.path.join(save_path, "SAC_FullRun_Cube.zip"))
-train_env.save(os.path.join(save_path, "SAC_FullRun_Cube_vec_normalize.pkl"))
+model.save(os.path.join(save_path, "SAC_FullRun_YCB.zip"))
+train_env.save(os.path.join(save_path, "SAC_FullRun_YCB.pkl"))
 
 del model
 del train_env
