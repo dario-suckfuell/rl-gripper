@@ -1,6 +1,0 @@
-setup.py
-rl_gripper.egg-info/PKG-INFO
-rl_gripper.egg-info/SOURCES.txt
-rl_gripper.egg-info/dependency_links.txt
-rl_gripper.egg-info/requires.txt
-rl_gripper.egg-info/top_level.txt

@@ -1,9 +1,0 @@
-/literatur/
-/venv/
-/.venv/
-/rl-gripper/feature_maps/
-/rl-gripper/img/
-/rl-gripper/smoothing/
-/rl-gripper/torch-profiler/
-/rl-gripper/rl_gripper/resources/models/random_objects/
-
